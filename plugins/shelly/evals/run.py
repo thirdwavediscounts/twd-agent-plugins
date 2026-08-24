@@ -25,7 +25,7 @@ for case in sorted(glob.glob(f"{HERE}/{pat}/prompt.md")):
         verdicts = {}
         for gname, g, _ in graders:
             if g.get("type") != "regex": verdicts[gname] = None; continue
-            hit = re.search(g["pattern"], text, re.I if "i" in g.get("flags", "") else 0) is not None
+            fl = g.get("flags", ""); hit = re.search(g["pattern"], text, (re.I if "i" in fl else 0) | (re.M if "m" in fl else 0)) is not None
             verdicts[gname] = hit if g.get("match", "contains") == "contains" else not hit
         passed = [v for v in verdicts.values() if v is not None]; score = sum(passed) / len(passed) if passed else 0
         scores.append(score); total_fail += score < 1
