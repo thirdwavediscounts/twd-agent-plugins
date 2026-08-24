@@ -13,7 +13,10 @@ these rules exist to not spend it by accident.
 
 - Mechanism: Vercel's **built-in "skip unaffected projects"** (on by default).
   Never add `"ignoreCommand": "npx turbo-ignore"` — deprecated, overrides the
-  built-in, and still burns a deployment slot per project.
+  built-in, and its cancellation happens AFTER the deployment exists — it still
+  burns a deployment and build slot where the built-in never creates one. The dashboard toggle
+  (Settings → Build and Deployment → Root Directory → "Skip deployment")
+  *disables* the built-in skip — leave it on.
 - "Affected" = the project's own source, its **`dependencies`-declared**
   internal packages, or a lockfile change touching its resolved deps.
   - `apps/<x>` MUST depend on `<x>-frontend` in `dependencies` (not
@@ -21,7 +24,11 @@ these rules exist to not spend it by accident.
     site keeps serving the old build, nothing goes red.
     `apps/product-research/tests/vercelSkipPolicy.test.ts` pins this.
     Known latent: `atlas` still has the edge in devDependencies (Cedric's app).
-  - `apps/*/server` (`*-dev-host`) packages are deliberately NOT depended on.
+    (Vercel's docs don't say whether the graph walks devDependencies, so the
+    edge lives where behavior is unambiguous — costless for private workspace
+    packages.)
+  - `apps/*/server` (`*-dev-host`) packages are deliberately NOT depended on —
+    the Express dev host is in no deploy path, so dev-host changes correctly skip.
 - **Anything outside every workspace package is global** → rebuilds all 12
   projects: root files, `packages/*`, `turbo.json`, root `package.json`,
   `pnpm-workspace.yaml`, `.github/`. DB runbooks and docs live inside
