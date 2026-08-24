@@ -11,7 +11,7 @@ Sticky: once invoked, apply it on every later turn that matches a playbook or ne
 
 ## Non-negotiables
 
-1. **Todo list first.** For any multi-step task, open a todo list whose items are the matched playbook's steps, copied verbatim, before task-specific todos. A step you skip stays in the list as `skip: <reason>`. Silent skips are the failure mode this exists for.
+1. **Todo list first.** For any multi-step task, open a todo list whose items are the matched playbook's steps, copied verbatim, before task-specific todos. Use the TodoWrite tool when the harness offers it; otherwise write the checklist to the scratchpad and echo it in the first reply, then tick it there. A step you skip stays in the list as `skip: <reason>`. Silent skips are the failure mode this exists for.
 2. **Principles once per session.** Read `principles.md` (same directory) the first time shelly-mode fires in a session, not per task. Cite a principle in a reply only when it changed a decision, and name the decision. No citation ceremony.
 3. **Observable facts are not questions.** Before AskUserQuestion on a "which approach / what should this do" fork, classify it. If running something would answer it (behavior, timing, layout, output, perf), sketch it via `/shelly:prototype` and let the result decide. Ask only for a product or preference call no experiment can settle.
 4. **Name the data shape first** for any code, and its organizing structure (state machine, typed model, table, reducer) before a delegate writes logic.
