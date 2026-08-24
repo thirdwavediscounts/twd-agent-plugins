@@ -111,7 +111,7 @@ Run the full explain flow above (Steps 1-4). You must understand the architectur
 After the explanation is complete, run two independent critics — one Claude, one cross-model:
 
 1. Architectural judgment critic — Agent tool, `subagent_type`: `general-purpose`, `model`: `fable`, prompt built from `references/critic-prompt.md`.
-2. Cross-model critic — GPT-5.4 via `codex exec --sandbox read-only -m gpt-5.4 -c 'model_reasoning_effort="xhigh"' "$(cat critic-packet.md)"` in the background, with the same filled critic prompt (written to a file first). `shelly:codex-reviewer` reviews a *branch diff*; committed code on `main` has none, so call `codex exec` directly here.
+2. Cross-model critic — GPT-5.4 via `codex exec --sandbox read-only -c 'model_reasoning_effort="xhigh"' "$(cat critic-packet.md)"` (default model from `~/.codex/config.toml`; xhigh keeps a critique under ~10 min) in the background, with the same filled critic prompt (written to a file first). `shelly:codex-reviewer` reviews a *branch diff*; committed code on `main` has none, so call `codex exec` directly here.
 
 Each critic gets: the explanation from Step 1, the relevant file paths, and `references/critique-rubric.md`.
 
