@@ -1,0 +1,16 @@
+name: plugin version bump
+on:
+  pull_request:
+    paths: ["plugins/shelly/**"]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - name: shelly changes need a plugin.json version bump
+        run: |
+          base=$(git show origin/${{ github.base_ref }}:plugins/shelly/.claude-plugin/plugin.json | jq -r .version)
+          head=$(jq -r .version plugins/shelly/.claude-plugin/plugin.json)
+          echo "base=$base head=$head"
+          [ "$base" != "$head" ] || { echo "::error::plugins/shelly changed but plugin.json version is still $head — claude plugin update skips unchanged versions"; exit 1; }
