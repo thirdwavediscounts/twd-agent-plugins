@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: blast-env-rename
+baseline_prompt:
+  blast-radius: "Review this change and tell me what it could break elsewhere."

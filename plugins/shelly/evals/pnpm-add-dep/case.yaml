@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: pnpm-add-dep
+baseline_prompt:
+  pnpm: "In our pnpm monorepo, apps/ccg needs the date-fns package. Give the exact commands, expected file changes, and anything you would refuse to do."
