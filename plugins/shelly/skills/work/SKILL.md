@@ -128,6 +128,11 @@ proof the fix works. A fix without a repro is a guess with a diff.
   stay unchecked and get called out in the PR body.
 - `qa-gate` for an independent confirmation; `code-reviewer` on the diff,
   `security-auditor` if it touches auth/RLS/secrets/input handling.
+- `/shelly:verify-work` — independent runtime proof of the ticket's claimed
+  behavior: blind fresh-context verifiers (Opus, Sonnet, Codex) re-derive the
+  repro from the claim alone, never the diff, and drive the real surface; the
+  recorded artifact goes on the ticket and in the PR body. Skip only for
+  changes with no runtime behavior (docs, comments) — state the skip.
 - **Codex second opinion — only if Sean says yes.** Ask him at this stage
   ("Want a Codex review on this diff?"); never run it unprompted — it costs
   minutes and an external model call. On his yes, run from the worktree:
