@@ -1,0 +1,7 @@
+{
+  "name": "twd",
+  "owner": { "name": "Third Wave Discounts" },
+  "plugins": [
+    { "name": "shelly", "source": "./plugins/shelly", "description": "TWD fleet engineering skills and agents" }
+  ]
+}
