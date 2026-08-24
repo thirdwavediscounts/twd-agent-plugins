@@ -1,0 +1,6 @@
+schema_version: "1.1"
+name: ship-stale-base
+context:
+  scaffold_script: scaffold.sh
+baseline_prompt:
+  ship: "Ship the current branch: get it onto origin/main the way a careful engineer would (push, open the PR with gh)."

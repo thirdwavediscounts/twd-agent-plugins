@@ -108,17 +108,12 @@ Run the full explain flow above (Steps 1-4). You must understand the architectur
 
 ### Step 2. Spawn Critics
 
-After the explanation is complete, spawn two independent critics in a single message with the Agent tool — this is the cross-model panel, hardcoded rather than configurable:
+After the explanation is complete, run two independent critics — one Claude, one cross-model:
 
-1. Architectural judgment critic — `subagent_type`: `general-purpose`, `model`: `fable`.
-2. Cross-model adversarial critic — `subagent_type`: `shelly:codex-reviewer` (dispatches GPT-5.4 as an independent second opinion).
+1. Architectural judgment critic — Agent tool, `subagent_type`: `general-purpose`, `model`: `fable`, prompt built from `references/critic-prompt.md`.
+2. Cross-model critic — the Codex default model (`~/.codex/config.toml`, gpt-5.6-sol today) via `codex exec --sandbox read-only -c 'model_reasoning_effort="xhigh"' "$(cat critic-packet.md)"` (default model from `~/.codex/config.toml`; xhigh keeps a critique under ~10 min) in the background, with the same filled critic prompt (written to a file first). `shelly:codex-reviewer` reviews a *branch diff*; committed code on `main` has none, so call `codex exec` directly here.
 
-Read `references/critic-prompt.md` for the prompt template and give it to the fable critic. Each critic gets:
-1. The explanation from Step 1 (so they don't re-explore)
-2. The relevant file paths (so they can read the actual code)
-3. The architectural critique rubric from `references/critique-rubric.md`
-
-`shelly:codex-reviewer` runs its own review flow against the diff/files directly; point it at the same file paths and the critique rubric as extra context rather than forcing the exact prompt template.
+Each critic gets: the explanation from Step 1, the relevant file paths, and `references/critique-rubric.md`.
 
 ### Step 3. Lead Judgment
 
@@ -130,4 +125,4 @@ Categorize findings:
 - **Noted.** Valid observations, low priority
 - **Dismissed.** Wrong, missing context, or style preference
 
-Present the explanation first (from Step 1), then the critique verdict below it. The explanation should stand on its own; someone who just wants to understand the system shouldn't wade through critique.
+Present the explanation first (from Step 1), then the critique verdict below it. An **Act on** finding about shipped code is drafted in the reply as a Linear sub-issue (title, one-paragraph body, parent ticket) and filed on the user's go — a verdict that lives only in the transcript is lost. The explanation should stand on its own; someone who just wants to understand the system shouldn't wade through critique.

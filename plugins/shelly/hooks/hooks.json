@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "f=\"$HOME/.claude/shelly-mode/$(basename \"$PWD\")\"; [ -f \"$f\" ] && jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"shelly-mode is active for this session (marker ~/.claude/shelly-mode/). Apply its intake and playbooks to this turn if one matches; delete the marker if the user opts out.\"}}' || true"
+          }
+        ]
+      }
+    ]
+  }
+}
