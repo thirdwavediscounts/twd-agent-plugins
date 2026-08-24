@@ -1,55 +1,26 @@
 ---
 name: vitest
-description: Vitest fast unit testing framework powered by Vite with Jest-compatible API. Load BEFORE creating or editing any *.test.ts / *.test.tsx / *.spec.* file, vitest.config.*, or test setup file in a Vite app (product-research, argus-console, warehouse-mobile-app), and when writing tests, mocking, configuring coverage, or debugging failing/flaky vitest runs.
-metadata:
-  author: Anthony Fu
-  version: "2026.6.22"
-  source: Generated from https://github.com/vitest-dev/vitest, scripts located at https://github.com/antfu/skills
+description: Fleet-specific vitest traps for the Vite apps (product-research, argus-console, warehouse-mobile-app). Load BEFORE creating or editing any *.test.* / *.spec.* file, vitest.config.*, or test setup file, and when a vitest run fails in CI but not locally (or vice versa). Generic vitest API questions go to find-docs, not here.
 ---
 
-Vitest is a next-generation testing framework powered by Vite. It provides a Jest-compatible API with native ESM, TypeScript, and JSX support out of the box. Vitest shares the same config, transformers, resolvers, and plugins with your Vite app.
+# vitest — what has burned us here
 
-**Key Features:**
-- Vite-native: Uses Vite's transformation pipeline for fast HMR-like test updates
-- Jest-compatible: Drop-in replacement for most Jest test suites
-- Smart watch mode: Only reruns affected tests based on module graph
-- Native ESM, TypeScript, JSX support without configuration
-- Multi-threaded workers for parallel test execution
-- Built-in coverage via V8 or Istanbul
-- Snapshot testing, mocking, and spy utilities
+Generic vitest/Testing-Library API is not in this file; use `find-docs` for that. Every item below is a real incident.
 
-> The skill is based on Vitest 5.x (beta), generated at 2026-06-22.
+## Writing tests
 
-## Core
+- **`beforeEach(() => mock.mockReset())` is a bug.** `mockReset()` returns the mock, and vitest treats a function returned from `beforeEach` as a cleanup hook — the mock gets a phantom extra call after each test. With a rejecting implementation that surfaces as an unhandled rejection blamed on the test, showing the mock's own error. Always braces: `beforeEach(() => { mock.mockReset(); })`. Signature: a stack through `callCleanupHooks`. (product-research `tests/processSheetBatching.test.ts`, 2026-07-29)
+- **`testTimeout` does not govern `findBy*`/`waitFor`.** Testing-Library's `asyncUtilTimeout` defaults to 1s regardless. Set it in the setup file with `configure({ asyncUtilTimeout })` imported from **`@testing-library/react`** — importing `configure` from `@testing-library/dom` configures a different copy under pnpm's strict layout and silently does nothing. (WMA, 2026-07-26)
+- **jsdom's React scheduler is `setImmediate`, browsers use `MessageChannel`.** A component that waits for a React commit with `setTimeout(0)` can lose that race in jsdom while being fine in a browser. A lost state update is an ordering bug — raising timeouts never fixes it. Raising a `findBy` budget with assertions unchanged is not weakening a test.
 
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Configuration | Vitest and Vite config integration, defineConfig usage | [core-config](references/core-config.md) |
-| CLI | Command line interface, commands and options | [core-cli](references/core-cli.md) |
-| Test API | test/it function, modifiers like skip, only, concurrent | [core-test-api](references/core-test-api.md) |
-| Describe API | describe/suite for grouping tests and nested suites | [core-describe](references/core-describe.md) |
-| Expect API | Assertions with toBe, toEqual, matchers and asymmetric matchers | [core-expect](references/core-expect.md) |
-| Hooks | beforeEach, afterEach, beforeAll, afterAll, aroundEach | [core-hooks](references/core-hooks.md) |
+## Diagnosing a failing run
 
-## Features
+- **Host Node 26 breaks jsdom `localStorage`.** `Cannot read properties of undefined (reading 'clear')` on `window.localStorage` plus `ExperimentalWarning: localStorage` = environment, not code. Packages want Node 22/24. Run through `.claude/scripts/ci-local.sh` (Node 24 container) or pin host node to 24 before diagnosing anything.
+- **CI-red / local-green:** re-run the identical commit first. Deterministic → your change; non-deterministic → load (WMA suite: ~9s local, ~500s CI). Then ask which clock ran out (budget vs ordering, above).
+- **Failures in files outside your diff right after a pull:** a new `packages/*` arrived and the workspace symlink doesn't exist yet. `pnpm install` first; read the individual test file's output, not turbo's summary (it truncates the real `ERR_MODULE_NOT_FOUND`).
+- **Never delete or weaken a red test to get green** — a policy test pins a repo guarantee. Replace it only with an equivalent assertion and say so.
 
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Mocking | Mock functions, modules, timers, dates with vi utilities | [features-mocking](references/features-mocking.md) |
-| Snapshots | Snapshot testing with toMatchSnapshot and inline snapshots | [features-snapshots](references/features-snapshots.md) |
-| Coverage | Code coverage with V8 or Istanbul providers | [features-coverage](references/features-coverage.md) |
-| Test Context | Test fixtures, context.expect, test.extend for custom fixtures | [features-context](references/features-context.md) |
-| Concurrency | Concurrent tests, parallel execution, sharding | [features-concurrency](references/features-concurrency.md) |
-| Filtering | Filter tests by name, file patterns, tags | [features-filtering](references/features-filtering.md) |
-| Test Tags | Label tests with tags to filter runs and apply shared options | [features-test-tags](references/features-test-tags.md) |
-| Reporters | Built-in reporters, default selection, CI/output config | [features-reporters](references/features-reporters.md) |
-| Benchmarking | Write benchmarks with the bench fixture (Tinybench) | [features-benchmarking](references/features-benchmarking.md) |
+## Gates
 
-## Advanced
-
-| Topic | Description | Reference |
-|-------|-------------|-----------|
-| Vi Utilities | vi helper: mock, spyOn, fake timers, hoisted, waitFor | [advanced-vi](references/advanced-vi.md) |
-| Environments | Test environments: node, jsdom, happy-dom, custom | [advanced-environments](references/advanced-environments.md) |
-| Type Testing | Type-level testing with expectTypeOf and assertType | [advanced-type-testing](references/advanced-type-testing.md) |
-| Projects | Multi-project workspaces, different configs per project | [advanced-projects](references/advanced-projects.md) |
+- `pnpm --filter <app> run test`; the only merge gate is `.claude/scripts/ci-local.sh` from the main checkout on committed state.
+- CI's verify job masks later steps: a red test step hides dep-audit/coverage.

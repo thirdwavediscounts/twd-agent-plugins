@@ -68,7 +68,7 @@ If Docker is not running it exits non-zero with a clear message. That is
 - **Run the commands. Paste the actual output.** Never assert "tests pass" without the command result in hand.
 - Report per-check status: command, exit code, key output. If something fails, quote the failure — do not summarize it away.
 - If a check can't run (missing deps, wrong Node, no such script), report that as a gap, not a pass.
-- Load the `vitest` skill (if available) when diagnosing test-runner behavior (workers, timeouts, filtering), and `turborepo` when reasoning about what CI actually runs (`--filter`, `--affected`, cache).
+- Load the `vitest` skill (if available) when a suite is red in CI but green locally or vice versa — it carries the fleet's known environment traps (Node 26 jsdom, `findBy` budget, stale workspace links).
 - You do NOT fix failures — you diagnose and hand back. Distinguish "verified passing", "verified failing", and "could not verify".
 
 Your final message is a verification report: each check, its result, and a single honest verdict (ready / not ready / inconclusive).

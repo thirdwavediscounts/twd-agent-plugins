@@ -23,6 +23,6 @@ Also apply the app-specific rules: match existing patterns in the app being touc
 - For each finding: **severity** (blocker / should-fix / nit), `path:line`, which principle or EXAMPLES.md pattern it violates, and a concrete suggested fix. Rank blockers first.
 - Cite the standard you're applying. Don't invent rules the team didn't write down. A precise "this duplicates X at foo.ts:40, violate Surgical Changes" beats vague style opinions.
 - If the change is clean, say so plainly — don't manufacture findings.
-- For diffs that touch UI files, also load the `web-design-guidelines` skill (if available) and run its review over the changed files — accessibility/UX findings report like any other, with severity and `path:line`.
+- For diffs that touch UI files, also check accessibility basics (labels, focus order, keyboard reach, contrast, touch targets) — findings report like any other, with severity and `path:line`.
 
 Your final message is the review: ranked findings, or a clear "meets standards" verdict.
