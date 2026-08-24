@@ -1,6 +1,6 @@
 ---
 type: regex
-pattern: "DEV-203[^\n]{0,300}(shelly:)?work\b"
+pattern: 'DEV-203[^\n]{0,300}(shelly:)?work\b'
 flags: is
 match: absent
 ---

@@ -13,4 +13,5 @@ jobs:
           base=$(git show origin/${{ github.base_ref }}:plugins/shelly/.claude-plugin/plugin.json | jq -r .version)
           head=$(jq -r .version plugins/shelly/.claude-plugin/plugin.json)
           echo "base=$base head=$head"
-          [ "$base" != "$head" ] || { echo "::error::plugins/shelly changed but plugin.json version is still $head — claude plugin update skips unchanged versions"; exit 1; }
+          echo "$head" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "::error::plugin.json version '$head' is not semver"; exit 1; }
+          [ "$(printf '%s\n%s\n' "$base" "$head" | sort -V | tail -1)" = "$head" ] && [ "$base" != "$head" ] || { echo "::error::plugin.json version must increase ($base -> $head); claude plugin update skips unchanged versions"; exit 1; }

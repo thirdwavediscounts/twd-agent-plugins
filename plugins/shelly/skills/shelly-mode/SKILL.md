@@ -7,7 +7,7 @@ description: Single entry point for any non-trivial task. Reads the prompt or a 
 
 Adapted from pstack's `poteto-mode` (github.com/cursor/plugins), 2026-08-24. Built around the repo owner's workflow: per-change go before push/PR/merge, `sean/` prefixes, the worklog. A teammate adapts **Always pause** to their own rules. The repo's CLAUDE.md, CLAUDE.local.md, and memory always win over anything here.
 
-**Sticky.** On invocation run `mkdir -p ~/.claude/shelly-mode && touch ~/.claude/shelly-mode/$(basename "$PWD")`; a `UserPromptSubmit` hook re-injects the mode after compaction while that marker exists. When the user opts out, delete the marker.
+**Sticky.** On invocation run `mkdir -p ~/.claude/shelly-mode && touch ~/.claude/shelly-mode/$(basename "$PWD")`; the plugin's `UserPromptSubmit` hook (`hooks/hooks.json`) re-injects the mode after compaction while that marker exists. When the user opts out, delete the marker.
 
 ## Rules
 

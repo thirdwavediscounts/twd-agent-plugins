@@ -3,7 +3,8 @@
 # Built for the Monitor tool: each stdout line is an event. Usage: watch-pr.sh <pr-number> [interval-seconds]
 set -u
 pr=${1:?pr number}; every=${2:-60}
-read -r owner name < <(gh repo view --json owner,name --jq '"\(.owner.login) \(.name)"')
+read -r owner name < <(gh repo view --json owner,name --jq '"\(.owner.login) \(.name)"') || true
+[ -n "${owner:-}" ] && [ -n "${name:-}" ] || { echo "cannot resolve owner/repo via gh repo view"; exit 3; }
 prev=""
 while true; do
   j=$(gh pr view "$pr" --json state,mergeable,mergeStateStatus,reviewDecision,statusCheckRollup 2>/dev/null) || { echo "gh error; retrying"; sleep "$every"; continue; }
