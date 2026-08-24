@@ -22,12 +22,14 @@ Ticket titles and descriptions use the project's domain glossary vocabulary and 
 
 ### 3. Draft vertical slices
 
+**Sizing gate — one ticket is the default.** Before slicing, ask: does the whole task fit one fresh `/work` session? If yes, it is ONE ticket — no parent/child tree, no Project, stop here. Every extra ticket costs a worktree, fresh-context spin-up, its own gates, PR, merge (= a prod build), sign-off, and teardown — real hours that dwarf the work when tickets are thin. Split only when the work genuinely exceeds one session or crosses a hard handoff boundary (a PROD runbook Sean pastes, a different repo/owner), then **merge slices upward until each ticket nearly fills a session**. A layer that fits in an hour (a table, a set of functions, a monitor query, a runbook draft) is never its own ticket — that's the horizontal slicing banned below wearing a ticket number.
+
 <vertical-slice-rules>
 
 - Each slice cuts a narrow but COMPLETE path through every layer (schema, API, UI, tests) — vertical, NOT a horizontal slice of one layer
 - A completed slice is demoable or verifiable on its own
-- Each slice is sized to fit in a single fresh `/work` session
-- Any prefactoring is its own ticket, done first
+- "Fits a single fresh `/work` session" is the MAXIMUM slice size, not a license to go small — target slices that nearly fill one
+- Prefactoring is its own ticket only when it must merge and deploy before the main work can start safely; otherwise it's the first commit of the slice that needs it
 
 </vertical-slice-rules>
 
@@ -45,7 +47,7 @@ Give each ticket its **blocking edges** — the tickets that must complete befor
 
 ### 5. Quiz the user
 
-Present the proposed breakdown as a numbered list — use the grilling question format for the open choices. For each ticket show **Title**, **Blocked by**, **What it delivers** (the end-to-end behaviour, from the user's perspective). Ask: granularity right? edges correct? merge or split anything? Iterate until approved.
+Present the proposed breakdown as a numbered list — use the grilling question format for the open choices. For each ticket show **Title**, **Blocked by**, **What it delivers** (the end-to-end behaviour, from the user's perspective). Ask: granularity right? edges correct? merge or split anything? Bias the challenge toward merging: name the tickets you'd combine if pushed, and say why you didn't. Iterate until approved.
 
 ### 6. Publish
 
