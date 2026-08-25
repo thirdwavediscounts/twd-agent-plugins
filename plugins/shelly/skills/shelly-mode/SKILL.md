@@ -7,13 +7,13 @@ description: Single entry point for any non-trivial task. Reads the prompt or a 
 
 Adapted from pstack's `poteto-mode` (github.com/cursor/plugins), 2026-08-24. Built around the repo owner's workflow: per-change go before push/PR/merge, `sean/` prefixes, the worklog. A teammate adapts **Always pause** to their own rules. The repo's CLAUDE.md, CLAUDE.local.md, and memory always win over anything here.
 
-**Sticky.** On invocation run `mkdir -p ~/.claude/shelly-mode && touch ~/.claude/shelly-mode/$(basename "$PWD")`; the plugin's `UserPromptSubmit` hook (`hooks/hooks.json`) re-injects the mode after compaction while that marker exists. When the user opts out, delete the marker.
+**Sticky.** On invocation run `mkdir -p ~/.claude/shelly-mode && touch ~/.claude/shelly-mode/$(basename "$PWD") && echo "cwd=$PWD"` — echo the cwd, since that first command is where a phantom worktree header gets caught; the plugin's `UserPromptSubmit` hook (`hooks/hooks.json`) re-injects the mode after compaction while that marker exists. When the user opts out, delete the marker.
 
 ## Rules
 
 1. **Todo list first.** Open a todo list whose items are the matched playbook's numbered steps, copied verbatim, before task-specific todos (TodoWrite when the harness offers it, else a scratchpad checklist echoed in the first reply). A skipped step stays listed as `skip: <reason>`.
 2. **Observable facts are not questions.** Before AskUserQuestion on a "which approach" fork: if running something would answer it, sketch it via `/shelly:prototype` and let the result decide. Ask only for a product or preference call no experiment settles.
-3. **Delegate bulk, keep judgment** (`/shelly:efficient-fable`). If the Agent tool fails with "Failed to create iTerm2 split pane", ask the user for `/reload-plugins` (it cleared the fault on 2026-08-24); if it persists, headless workers: write the packet to a file, then `claude -p --model sonnet --dangerously-skip-permissions --no-session-persistence "$(cat packet.md)" > log 2>&1 < /dev/null; echo "EXIT $?" >> log` in the background, and wait on the `EXIT` line.
+3. **Delegate bulk, keep judgment** (`/shelly:efficient-fable`). A lane writes to the repo unless the brief forbids it — "read real files" authorizes reading, not writing. Every report-only lane gets **"Read-only: report findings, edit nothing; return code as text"** verbatim, and any lane that must write gets `isolation: "worktree"`; concurrent lanes otherwise read each other's uncommitted edits and their verdicts stop being independent. If the Agent tool fails with "Failed to create iTerm2 split pane", ask the user for `/reload-plugins` (it cleared the fault on 2026-08-24); if it persists, headless workers: write the packet to a file, then `claude -p --model sonnet --dangerously-skip-permissions --no-session-persistence "$(cat packet.md)" > log 2>&1 < /dev/null; echo "EXIT $?" >> log` in the background, and wait on the `EXIT` line.
 4. **Principles are steering names.** Say one to redirect; cite one in a reply only when it changed a decision.
 
 | Build less | Architecture | Proof | Delegation |
@@ -23,7 +23,7 @@ Adapted from pstack's `poteto-mode` (github.com/cursor/plugins), 2026-08-24. Bui
 ## Intake
 
 **`DEV-n`** → `mcp__linear__get_issue` (with relations) + `list_comments`; route on state and content, not title:
-- Triage → `/shelly:triage` for that ticket.
+- Triage → `/shelly:triage` for that ticket. **A ticket whose description already carries a verified root cause or acceptance criteria is Ready-for-Agent in substance — say so and promote it (one Linear write) before building, never build from Triage silently.** An agent-filed ticket routinely lands here fully formed; spending a workflow on one the board still calls unaccepted is the cost this prevents.
 - Backlog / Todo → not ready. Say so; offer to promote it or run Investigation first.
 - Ready for Agent, label Bug, no verified root cause in the description → `/investigate`, then stop; building is a second invocation.
 - Ready for Agent with a root cause or acceptance criteria in the description (reference-doc comments are not a plan; the description is) → `/shelly:work DEV-n`, one ticket per session.
