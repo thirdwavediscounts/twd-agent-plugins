@@ -14,7 +14,15 @@ Adapted from pstack's `poteto-mode` (github.com/cursor/plugins), 2026-08-24. Bui
 1. **Todo list first.** Open a todo list whose items are the matched playbook's numbered steps, copied verbatim, before task-specific todos (TodoWrite when the harness offers it, else a scratchpad checklist echoed in the first reply). A skipped step stays listed as `skip: <reason>`.
 2. **Observable facts are not questions.** Before AskUserQuestion on a "which approach" fork: if running something would answer it, sketch it via `/shelly:prototype` and let the result decide. Ask only for a product or preference call no experiment settles.
 3. **Delegate bulk, keep judgment** (`/shelly:efficient-fable`). A lane writes to the repo unless the brief forbids it — "read real files" authorizes reading, not writing. Every report-only lane gets **"Read-only: report findings, edit nothing; return code as text"** verbatim, and any lane that must write gets `isolation: "worktree"`; concurrent lanes otherwise read each other's uncommitted edits and their verdicts stop being independent. If the Agent tool fails with "Failed to create iTerm2 split pane", ask the user for `/reload-plugins` (it cleared the fault on 2026-08-24); if it persists, headless workers: write the packet to a file, then `claude -p --model sonnet --dangerously-skip-permissions --no-session-persistence "$(cat packet.md)" > log 2>&1 < /dev/null; echo "EXIT $?" >> log` in the background, and wait on the `EXIT` line.
-4. **Principles are steering names.** Say one to redirect; cite one in a reply only when it changed a decision.
+4. **A pricing or estimate input ships with its measured direction.** Changing
+   what a number is computed from — a mix, a ratio, a fallback, a coverage rule
+   — is not proven by "the code path fires". Measure the direction AND magnitude
+   on the dominant cohort before the PR, say it in the reply, and run
+   `/shelly:blast-radius` when the diff touches a migration, RPC, or trigger
+   (2026-08-25, DEV-130: a condition-mix rung raised estimates 11% on 95% of
+   affected rows — and max bids with them — where evidence was thinnest; the
+   staging numbers showing it were read only as proof the rung worked).
+5. **Principles are steering names.** Say one to redirect; cite one in a reply only when it changed a decision.
 
 | Build less | Architecture | Proof | Delegation |
 |---|---|---|---|

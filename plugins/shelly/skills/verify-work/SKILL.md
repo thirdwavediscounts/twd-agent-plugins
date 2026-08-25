@@ -89,6 +89,11 @@ a lone verifier is the same bias once removed.
   as green.
 - Seats disagree on one claim → re-run the red seat's exact repro yourself; the
   command's output decides, not the vote count.
+- **Attestation covers the claims it tested, nothing else.** A new runtime claim
+  added to the branch after the panel ran — another commit, a migration, a
+  changed default — voids the headline until a seat runs on it. Never let a PR
+  body say "work-verified" over work no seat saw; either re-run or scope the
+  line to the claims verified.
 
 ## Step 5, Evidence and Residue
 
