@@ -20,6 +20,8 @@ Every comment this skill posts starts with the AI disclaimer line:
 - **`/triage`** (no arg) — **interactive.** Show the queue in buckets, recommend
   a call per ticket with reasoning, then **wait** for Sean's direction before
   moving anything.
+- A single `DEV-n` argument is always autonomous, in either mode — there is no
+  queue to bucket. Classify that ticket, move it, post the brief, report.
 - **`/triage auto`** — **autonomous** (what the `/schedule` routine invokes).
   Classify and move each ticket without waiting. Anything you are not confident
   about stays in `Triage` with a note — never guess a Cancel.
