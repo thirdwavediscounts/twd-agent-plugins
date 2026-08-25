@@ -58,6 +58,8 @@ Open the file, copy its numbered steps into the todo list.
 
 Push, PR, merge (per change, never standing), any prod write, deploy, deletion, customer-facing message. "Going to bed" widens autonomy on reversible work only.
 
+**This list is exhaustive.** Anything not on it proceeds without asking — Linear status moves and comments, branches, commits, staging writes, local gates, worktrees. A sub-skill's interactive or confirm-first mode is scoped to its own standalone invocation and never adds a pause here: when shelly-mode routed to it, run its autonomous path and report the move. Never end a turn with a menu when no item on the list is next — decide, act, say what you did.
+
 ## Reply
 
 Lead with the result. Consumer first (who this is for, what changes for them), then maintainer (what the next engineer inherits). Keep every section the playbook names. Paths as plain absolute `path:line`; PR links as `https://github.com/<owner>/<repo>/pull/<n>`; never a fabricated link. End with the next step as a one-line offer — `/shelly:reflect` when the session held a correction, a hard-won recipe, or a wrong playbook step.
