@@ -176,6 +176,13 @@ Then `mcp__linear__save_issue({id, state: "In Review"})` and post a comment
 linking the PR. **Stop here and report the PR URL** — Sean reviews before merge.
 A ticket is never Done from an open PR.
 
+**Every acceptance box is tickable today, or says when.** Before the transition,
+walk the unchecked boxes: force each surface that has not happened yet
+(`/shelly:verify-work` Step 2b) or annotate the box `time-gated, earliest <date>`
+with what it is waiting for. A box like "next Sat/Sun" with no annotation leaves
+In Review meaning both "waiting on Sean" and "waiting on the calendar", and the
+calendar ones sit there decaying.
+
 **Release the build team now.** Pane teammates (if any) get a shutdown request
 — never leave a pane idling through the review wait. In-process subagent
 threads need no explicit kill; just stop messaging them. If Sean's PR review
