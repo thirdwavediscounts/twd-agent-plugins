@@ -48,6 +48,11 @@ You do setup so verifiers verify instead of fighting launches:
   there.
 - Snapshot `git status --short` for the residue check in Step 5.
 
+When the surface depends on an event that has not happened — a weekend, a cron
+tick, a month of prod traffic — build a **forced surface** rather than waiting or
+reporting the claim unverifiable: read `references/forced-surface.md` and prepare
+it there. "Needs a real event" is a Step 2 problem, not a blocker.
+
 ## Step 3, Spawn the Panel
 
 Launch all seats in a single message, each a fresh context:
