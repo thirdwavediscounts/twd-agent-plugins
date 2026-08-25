@@ -134,7 +134,7 @@ START=$SECONDS
 # --- steps mirror .github/workflows/ci.yml `verify`, in order -----------------
 step "Install"                          pnpm install --frozen-lockfile
 step "No tracked server node_modules"   bash -c "test -z \"\$(git ls-files 'apps/*/server/node_modules' 'apps/*/node_modules')\""
-step "Build, test, typecheck, lint"     pnpm turbo run build test typecheck lint
+step "Build, test, typecheck, lint"     pnpm turbo run build test typecheck lint --concurrency=50%
 step "Install Chromium"                 pnpm --filter product-research exec playwright install --with-deps chromium
 step "Unauthenticated browser smoke"    pnpm --filter product-research run test:e2e:unauth
 step "Coverage ratchet"                 pnpm --filter product-research run test:coverage
