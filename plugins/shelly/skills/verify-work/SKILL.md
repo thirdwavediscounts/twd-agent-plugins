@@ -43,7 +43,13 @@ You do setup so verifiers verify instead of fighting launches:
   confirm with a request only your instance can answer. Verifiers verifying
   someone else's server is the failure this prevents.
 - Command surface: name the exact entry (`tsx --env-file` against staging, a
-  curl base URL, a test command).
+  curl base URL, a test command). **The brief never points at `.env`** — write
+  a wrapper script in the evidence dir that carries `--env-file=<abs path>`
+  itself, and hand verifiers the script. A verifier that holds the env path
+  will open it when its first script fails (2026-08-25: seat B catted `.env`
+  through a filter that missed `postgresql://` — prod pooler password in the
+  transcript). Codex (seat C) gets the same wrapper; its transcript leaves the
+  machine.
 - Create an evidence directory in the scratchpad; each verifier writes only
   there.
 - Snapshot `git status --short` for the residue check in Step 5.

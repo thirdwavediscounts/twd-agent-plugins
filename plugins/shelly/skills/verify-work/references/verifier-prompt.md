@@ -52,6 +52,10 @@ Chrome), and name the resulting file in your report.}
   Leave the worktree untouched.
 - Read-only toward production; staging is fine for reads and test writes the
   surface itself performs.
+- Never read, cat, grep, sed, or head any `.env*` file — env reaches
+  a process only via `--env-file=<abs path>` or the app's own
+  loader; variable names live in `.env.example`. A redaction filter is a
+  backstop, never permission to read.
 - If a command fails twice for environmental reasons, stop and report
   `COULD_NOT_VERIFY` with the failure — do not improvise around the surface.
 

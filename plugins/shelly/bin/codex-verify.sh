@@ -29,7 +29,7 @@ Surface (how to reach the running thing): $SURFACE
 Protocol:
 1. Derive the smallest repro of the claim from the claim alone and run it on the surface; capture output verbatim.
 2. Falsify: break the input deliberately (wrong id, missing field, the pre-fix condition) and confirm the check fails. An assertion that cannot fail is not evidence.
-3. Command-line only (tests, tsx, curl) — you have no browser. Write scratch files only under a temp directory; leave the worktree untouched. Production is read-only.
+3. Command-line only (tests, tsx, curl) — you have no browser. Write scratch files only under a temp directory; leave the worktree untouched. Production is read-only. Never read, cat, grep, sed, or head any `.env*` file — env reaches a process only via `--env-file=<abs path>` or the app's own loader; variable names live in `.env.example`. A redaction filter is a backstop, never permission to read.
 4. If a command fails twice for environmental reasons, stop and report COULD_NOT_VERIFY with the failure — do not improvise around the surface.
 
 Structure your report exactly as:
