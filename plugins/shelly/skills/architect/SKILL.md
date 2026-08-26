@@ -31,7 +31,7 @@ Skip Phase A only when the work is genuinely greenfield with no surrounding syst
 
 Run the **arena** skill (`../arena/SKILL.md`) with the design-sketch task and the Phase A grounding artifacts. Pass `references/runner-prompt.md` as each runner's prompt. Each candidate produces a design package shaped per `references/rationale-template.md`: the caller's usage written first, then the type sketch, function signatures, module map, and prose rationale derived from it.
 
-Spawn runners with the Agent tool, model `sonnet` or `opus`. Use the Workflow tool when you want N runners fanned out deterministically (one `agent()` call per candidate, same prompt, isolated output paths) instead of hand-tracking N parallel Agent calls. Fable (this session) does the cross-candidate judgment and synthesis.
+Spawn runners with the Agent tool, model `sonnet` or `claude-opus-4-8[1m]` (never the bare `opus` alias — it resolves to Opus 5). Use the Workflow tool when you want N runners fanned out deterministically (one `agent()` call per candidate, same prompt, isolated output paths) instead of hand-tracking N parallel Agent calls. Fable (this session) does the cross-candidate judgment and synthesis.
 
 Design it twice. Require at least two structurally distinct candidates before synthesis, even when the first looks sufficient — exhaust the design space before picking. Whole-shape alternatives, not point fixes inside one shape.
 

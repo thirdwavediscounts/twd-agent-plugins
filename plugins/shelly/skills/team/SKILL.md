@@ -46,7 +46,7 @@ ticket before dispatching, so the plan survives this session.
 - **Cap: 3 concurrent teammates** — Sean's review bandwidth is the ceiling,
   not compute. Fewer when tickets are heavy.
 - Spawn via the Agent tool: `name` = ticket id lowercased (`dev-101`),
-  `model: "opus"` (Fable leads, Opus builds — Sean can override).
+  `model: "claude-opus-4-8[1m]"` (Fable leads, Opus 4.8 builds — never Opus 5 — Sean can override).
 - The teammate prompt, verbatim skeleton:
 
   > Run `/work DEV-nnn` end to end. You were spawned by a `/team` lead: build
