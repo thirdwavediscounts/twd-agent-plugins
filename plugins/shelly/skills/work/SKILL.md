@@ -223,7 +223,7 @@ The trigger is Sean merging (or telling you to). Do NOT do this from an open PR.
    **grouped by project** (`list_issues` filtered by state) so Sean picks
    without cross-project confusion. If the only thing left is a post-deploy
    verify checklist on a symptom ticket, say that instead — verify is not a
-   `/work` target.
+   `/work` target; it is a `/shelly:verify-live` run.
 
 ## Report
 
