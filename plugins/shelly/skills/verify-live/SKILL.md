@@ -36,16 +36,18 @@ Read [`apps.md`](apps.md) for the app's row. An app without a row is not driven
 until you add one (URL, switch key, staging-only fixture, tables, cleanup).
 
 1. **Signed in as the verify account.** Drives run as
-   `sean+verify@thirdwavediscounts.com` (prod auth, per-app allowlist rows on
-   both projects; `is_twd_user()` passes by domain) — never as Sean's live
-   session. The fleet login is Google-only and a plus-address has no Google
-   identity, so the session is bootstrapped once by magic link: Sean sends it
-   from Supabase Auth → Users (prod), the link is opened in a Playwright
-   context, and the resulting `storageState` is saved to
-   `~/.claude/private/verify-live/state.json` (outside every repo and
-   transcript; refresh tokens keep it alive). Chrome drives use a dedicated
-   profile signed in the same way. Read the signed-in email from the app's
-   profile menu; a different email aborts the run. Every write the drive makes carries
+   `sean+verify@thirdwavediscounts.com` (prod auth; allowlisted on both projects
+   for the apps in `apps.md`; `is_twd_user()` passes by domain) — never as
+   Sean's live session. Bootstrap once, out of band: the fleet login is
+   Google-only and this plus-address has no Google identity, so Sean opens a
+   fresh magic link (Supabase Auth → Users → Send magic link, prod) in a
+   **dedicated Chrome profile**, which `claude-in-chrome` then targets for every
+   drive. The app's own `twd-auth.*` cookie persists it and refresh tokens keep
+   it alive — do not try to synthesize that cookie or reuse a Playwright
+   `storageState`: the fleet client is PKCE with a chunked, checksummed shared
+   cookie and an injected session races `detectSessionInUrl`. Read the signed-in
+   email from the profile menu first; anything but the verify account aborts the
+   run. Every write the drive makes carries
    `updated_by = sean+verify@…`, which is also the cleanup key.
 2. **Build is the merge.** `gh pr view <N> --json mergeCommit` and
    `gh api repos/thirdwavediscounts/twd-apps-monorepo/commits/<sha>/status -q .state`
