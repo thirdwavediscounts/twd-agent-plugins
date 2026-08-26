@@ -87,11 +87,13 @@ cd <main checkout root>
 ci-local.sh <branch sha>
 ```
 
-- **Run it from the main checkout** (`~/Code/twd-apps-monorepo`), never a
-  worktree — the script clones its own repo root, and a worktree's `.git` file
-  doesn't clone. Worktrees now live under the main checkout at
-  `.claude/worktrees/<name>`; `cd` to the checkout root, not to a parent dir. Worktree commits are visible there (shared object store);
-  pass the branch's sha as the ref.
+- **Works from a worktree since 2026-08-26**: the script resolves the main
+  checkout via `git rev-parse --git-common-dir` and clones that (worktrees share
+  the object store), while the ref resolves in the invoking checkout, so a bare
+  `ci-local.sh` inside `.claude/worktrees/<name>` tests THAT worktree's HEAD. An
+  older copy of the script still fails from a worktree as
+  `ERR_PNPM_AUDIT_NO_LOCKFILE` / `pnpm ls` OOM — a fake dependency error; `cd` to
+  the main checkout and pass the sha.
 - **Committed state only.** The clone sees commits, not the working tree —
   anything uncommitted is untested. Step 0 already forces this.
 - Needs Docker Desktop running; the script says so and exits if not.
@@ -131,6 +133,10 @@ mid-task.
 gh pr merge <N> --merge --delete-branch -t "sean/ <PR title>"
 ```
 
+From a worktree this merges, then fails on its local checkout-main step
+(`fatal: 'main' is already used by worktree at …`). Do not re-run it: confirm with
+`gh pr view <N> --json state,mergeCommit`, then `git push origin --delete <branch>`.
+
 Vercel labels each deployment with the first line of the merge commit and
 truncates it early, so GitHub's default (`Merge pull request #454 from
 thirdwavediscounts/sean/…`) renders as an unreadable wall. The `sean/ ` prefix
@@ -141,7 +147,9 @@ Only `sean/` branches get the prefix. Leave Cedric's and Jake's merges alone.
 
 ## 5b. Close the linked Linear ticket (only if the branch names one)
 
-A `/work` branch is `sean/DEV-123-…` and its PR body says `Closes DEV-123`. If —
+A `/work` branch is `sean/DEV-123-…` and its PR body says `Closes DEV-123` —
+only for the ticket this PR completes. A parent/container ticket (spec, epic) gets
+`Refs DEV-n`: `Closes` on a parent auto-closes it with children still open. If —
 and only if — the branch or PR references a `DEV-xxx`, the merge that just landed
 is what makes that ticket Done (a ticket is Done nowhere else). Skip this whole
 step for branches that carry no ticket id.

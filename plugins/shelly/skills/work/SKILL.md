@@ -161,6 +161,11 @@ tweak now costs nothing, the same tweak after merge costs a full prod build.
   to open, what changed, and what to try.
 - **Stop and wait for his OK.** Fold his feedback in here, on the branch, and
   re-run only the gates the change touched.
+- **Scope added after a runbook already ran in prod** → write a NEW cumulative
+  `PROD_` file for the delta (never edit the applied one) and keep handlers tolerant
+  of the missing column (`COALESCE`, optional select) until it runs — otherwise
+  Sean's localhost look 500s against prod mid-review (DEV-142 shipped three
+  runbooks for one ticket, 2026-08-26).
 - Nothing to see locally (migration, worker, cron, pure backend)? Say that
   explicitly and name the real proof you ran instead — never skip his look
   silently.
