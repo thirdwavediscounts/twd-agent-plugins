@@ -17,6 +17,8 @@ Mine the current conversation for durable learnings, then route them into edits 
 
 Skip when the session is trivial, or the lesson is already captured somewhere that future sessions load. One-offs are not learnings.
 
+Reflect grows the steering surface; to prune it — cut no-op rules, split a bloated CLAUDE.local.md / MEMORY.md, move standards onto the review agents — run `retro` instead.
+
 ## Process
 
 ### 1. Three parallel reviewers
