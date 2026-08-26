@@ -38,16 +38,12 @@ until you add one (URL, switch key, staging-only fixture, tables, cleanup).
 1. **Signed in as the verify account.** Drives run as
    `sean+verify@thirdwavediscounts.com` (prod auth; allowlisted on both projects
    for the apps in `apps.md`; `is_twd_user()` passes by domain) — never as
-   Sean's live session. Bootstrap once, out of band: the fleet login is
-   Google-only and this plus-address has no Google identity, so Sean opens a
-   fresh magic link (Supabase Auth → Users → Send magic link, prod) in a
-   **dedicated Chrome profile**, which `claude-in-chrome` then targets for every
-   drive. The app's own `twd-auth.*` cookie persists it and refresh tokens keep
-   it alive — do not try to synthesize that cookie or reuse a Playwright
-   `storageState`: the fleet client is PKCE with a chunked, checksummed shared
-   cookie and an injected session races `detectSessionInUrl`. Read the signed-in
-   email from the profile menu first; anything but the verify account aborts the
-   run. Every write the drive makes carries
+   Sean's live session. The session lives in a saved Playwright storageState at
+   `~/.claude/private/verify-live/state.json` (outside every repo and
+   transcript), created **once** and reused by every run — refresh tokens keep
+   it alive for weeks. First read the signed-in email from the profile menu;
+   anything but the verify account aborts the run. If the state is missing or
+   stale, re-capture it (below) before verifying anything. Every write the drive makes carries
    `updated_by = sean+verify@…`, which is also the cleanup key.
 2. **Build is the merge.** `gh pr view <N> --json mergeCommit` and
    `gh api repos/thirdwavediscounts/twd-apps-monorepo/commits/<sha>/status -q .state`
@@ -59,6 +55,22 @@ until you add one (URL, switch key, staging-only fixture, tables, cleanup).
    empty shell, not an error, when this was skipped (2026-08-26: doc 239 loaded
    on production with the key still `production`). A miss aborts the run.
 4. **Record the start instant** (`date -u`) — the prod no-write proof keys on it.
+
+### Capturing the session (one-time, and on expiry)
+
+The fleet login is Google-only and this plus-address has no Google identity, so
+the session is seeded by magic link, captured once:
+
+1. Sean sends a fresh magic link (Supabase → Authentication → Users →
+   `sean+verify@…` → Send magic link) with redirect straight to the app
+   (`https://product-research.apps.repsxi.com`), and pastes it here.
+2. Open it in a headed Playwright context, let it settle on the app, confirm
+   the profile menu shows the verify account, then `context.storage_state(path=…)`
+   to `~/.claude/private/verify-live/state.json` (chmod 600). The app writes its
+   own `twd-auth.*` cookie, so the saved state is correct by construction — no
+   cookie is hand-built.
+
+This is the only manual step, and only when the state is absent or expired.
 
 ## 3. Fixture
 
