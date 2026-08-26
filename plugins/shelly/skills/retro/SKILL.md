@@ -19,7 +19,7 @@ The implementer agent is context-starved — it explores, writes, and debugs und
 
 1. Read the primary source. Default to the current session; if Sean names another, find it in the session logs on this machine. Read what actually happened — the dead ends, the searches, the corrections — not a summary of it.
 
-2. Walk every lever below against that session and against the steering files it touched. Each lever names *when it fires* — only report a candidate you have real evidence for.
+2. Walk every lever below against that session and against the steering files it touched. Each lever names *when it fires* — only report a candidate you have real evidence for. Before proposing any candidate, open its target — the hook script, the policy test, the steering line — and confirm the defect is actually there. A plausible finding read against the real artifact is often wrong: a "the guard over-fired" candidate dies on reading the guard.
 
 3. Present candidates to Sean, ranked by severity, one line each, using the grilling format if any is his call. This skill proposes; it does not silently edit steering. Apply approved edits directly (load `writing-for-agents` before a non-trivial skill or CLAUDE.md edit); file repo-enforceable changes as backlog needing a branch and his go-ahead.
 
