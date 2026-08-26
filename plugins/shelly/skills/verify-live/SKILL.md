@@ -35,16 +35,28 @@ never an answer.
 Read [`apps.md`](apps.md) for the app's row. An app without a row is not driven
 until you add one (URL, switch key, staging-only fixture, tables, cleanup).
 
-1. **Build is the merge.** `gh pr view <N> --json mergeCommit` and
+1. **Signed in as the verify account.** Drives run as
+   `sean+verify@thirdwavediscounts.com` (prod auth, per-app allowlist rows on
+   both projects; `is_twd_user()` passes by domain) — never as Sean's live
+   session. The fleet login is Google-only and a plus-address has no Google
+   identity, so the session is bootstrapped once by magic link: Sean sends it
+   from Supabase Auth → Users (prod), the link is opened in a Playwright
+   context, and the resulting `storageState` is saved to
+   `~/.claude/private/verify-live/state.json` (outside every repo and
+   transcript; refresh tokens keep it alive). Chrome drives use a dedicated
+   profile signed in the same way. Read the signed-in email from the app's
+   profile menu; a different email aborts the run. Every write the drive makes carries
+   `updated_by = sean+verify@…`, which is also the cleanup key.
+2. **Build is the merge.** `gh pr view <N> --json mergeCommit` and
    `gh api repos/thirdwavediscounts/twd-apps-monorepo/commits/<sha>/status -q .state`
    must read `success`; `curl -s https://<app>.apps.repsxi.com/api/health` answers.
-2. **Data target is staging — asserted, not assumed.** Open the app, set the
+3. **Data target is staging — asserted, not assumed.** Open the app, set the
    switch (`localStorage.setItem('<key>','staging')`), reload, then read back
    BOTH the key and the **staging-only fixture**: a record (name + id) that
    exists on staging and returns nothing on production. The page rendered an
    empty shell, not an error, when this was skipped (2026-08-26: doc 239 loaded
    on production with the key still `production`). A miss aborts the run.
-3. **Record the start instant** (`date -u`) — the prod no-write proof keys on it.
+4. **Record the start instant** (`date -u`) — the prod no-write proof keys on it.
 
 ## 3. Fixture
 
