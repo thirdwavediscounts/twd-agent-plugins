@@ -103,9 +103,14 @@ easy to miss on timing; trust the DB row, not the banner. Prefer stable handles
 
 ## 5. Evidence — capture before cleanup
 
-- The run's `.webm` video is the primary artifact — move it out of the app
-  scratch to `~/.claude/private/verify-live/evidence/<ticket>-<ts>.webm` (it
-  survives cleanup) and name it in the report.
+- The run's `.webm` video is the primary artifact — **upload it to the verified
+  ticket in Linear**, don't keep it local: `prepare_attachment_upload` (issue,
+  `contentType: video/webm`, exact byte size) → `curl -X PUT --data-binary` to
+  the signed URL with every `uploadRequest.headers` entry verbatim, within 60 s
+  → `create_attachment_from_upload`. It then plays inline in the ticket. Delete
+  the local file once the attachment is confirmed. If there is no ticket (a
+  skill demo), keep it under `~/.claude/private/verify-live/evidence/` and name
+  the path.
 - Read the written rows back with `mcp__supabase-staging__execute_sql`; quote
   the exact stored values in the report.
 - Prove production untouched with `mcp__supabase-production__execute_sql`:
@@ -126,12 +131,13 @@ easy to miss on timing; trust the DB row, not the banner. Prefer stable handles
 Run the app's cleanup SQL from `apps.md` for the ids you created, reset the
 switch (`localStorage.setItem('<key>','production')`), close your tab. The
 drive rode the signed-in user's live session; leaving the switch on staging
-changes what they see next. Evidence survives cleanup — the report carries the
-values, not a pointer to deleted rows.
+changes what they see next. Delete the local `.webm` once it is attached to the
+ticket; the report carries the stored values and the Linear attachment, not a
+pointer to a local file or deleted rows.
 
 ## 7. Report
 
 Claim → trigger → doctor witnesses (sha, fixture name) → drive → stored values
-→ prod count → cleanup done. If the ticket has a post-deploy checklist, tick it
-with this evidence and move the ticket; hold `/worklog` for the shipped change,
-not for the verification.
+→ prod count → video attached to the ticket → cleanup done. If the ticket has a
+post-deploy checklist, tick it with this evidence and move the ticket; hold
+`/worklog` for the shipped change, not for the verification.
