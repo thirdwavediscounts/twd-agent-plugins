@@ -20,6 +20,11 @@ Load once, up front:
   `list_issues({parentId})` for children, again per child for grandchildren,
   and `get_issue(..., includeRelations: true)` per ticket for `blockedBy`.
 - **No children?** It's a single ticket — point Sean at `/work` and stop.
+- **The spec the parent cites must be on `origin/main`** (`git ls-tree origin/main
+  -- <path>`). Branch-only or untracked docs mean every teammate branches from a
+  base without them — land the docs PR before wave 1 (2026-08-26: DEV-139's spec
+  sat untracked in a locked worktree; teammates read it by absolute path until it
+  merged mid-run and the path went stale).
 - Teams not enabled (spawn returns an ordinary subagent, no mailbox line) →
   stop and say so; the fix is the settings flag + session restart.
 
@@ -73,7 +78,22 @@ React to teammate messages; between them, hold a light loop:
   `deploy.sh`'s guard is only the backstop).
 - **On a ticket reaching Done in Linear** (verify with `get_issue`, don't
   trust the message alone): recompute the ready set, dispatch newly unblocked
-  tickets into free slots.
+  tickets into free slots. Also `get_issue` the **parent** after every merge: a
+  `Closes <parent>` in a spec/docs PR flips it Done with children still open —
+  reopen it to In Progress and comment (DEV-139, 2026-08-26). Parents get `Refs`.
+- **Sean's go is typed in the teammate's pane, never relayed.** A `/ship` or
+  "go" typed in the lead session is not the teammate's push approval — its brief
+  says approvals happen in its pane, and it will (correctly) refuse the relay.
+  Tell Sean which pane; don't forward.
+- **Relay Sean's UI feedback verbatim.** The lead does not see the page; Sean
+  does. Turn his words into a brief, but add no design decisions of the lead's own
+  (2026-08-26: three lead-invented UI choices were each reversed by Sean's next
+  screenshot, costing a teammate rebuild apiece). Recommend only on structural
+  questions (a page vs. a pill), where a recommendation was useful.
+- **One feedback batch per teammate turn.** Hold the next batch until the
+  teammate reports the commit for the last one; when a new item supersedes an
+  earlier one, say "supersedes X" explicitly. Firing batches as they arrive
+  produces crossed messages and "did you get it?" nudges.
 - **Liveness:** a teammate silent 15+ min with no idle notification →
   ListAgents; if gone, note where Linear says the ticket stands and respawn
   a fresh teammate to resume from that state.
