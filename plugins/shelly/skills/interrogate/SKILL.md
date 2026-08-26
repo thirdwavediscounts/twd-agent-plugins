@@ -43,7 +43,7 @@ Launch all reviewers in a single message using the Agent tool. The panel is fixe
 | Reviewer A | `shelly:code-reviewer` | Claude, judges against the team's standards (CLAUDE.md's four principles, `packages/guidelines/EXAMPLES.md`) |
 | Reviewer B | `shelly:codex-reviewer` | GPT-5.4 cross-model adversarial pass. It wraps `.claude/scripts/codex-review-diff.sh` internally — that script is the canonical way to run Codex against the diff; don't call it directly, spawn the agent |
 | Reviewer C | `shelly:security-auditor` | Auth/RLS gaps, secret leakage, injection, unsafe input handling |
-| Reviewer D | `general-purpose`, model `opus` | Given `references/reviewer-prompt.md` directly, same as the other three |
+| Reviewer D | `general-purpose`, model `claude-opus-4-8[1m]` | Given `references/reviewer-prompt.md` directly, same as the other three |
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent

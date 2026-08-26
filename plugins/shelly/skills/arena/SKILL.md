@@ -26,7 +26,7 @@ The N candidates will receive the same prompt, so the prompt is the contract. Ge
 
 1. State the artifact each candidate is producing.
 2. Derive the rubric. State what success looks like for *this* task, then turn it into 3-6 concrete gradeable criteria. Concrete: `Adds a --dry-run flag that skips writes`. Vague: `code is correct`. The rubric is the picker's tool in Phase D; candidates only see the task.
-3. Pick the runners. Spawn one Agent tool call per candidate, model `sonnet` for bulk generation or `opus` when the task is judgment-sensitive rather than generation-bound; same model N times is fine when the work is generation-bound. Spawn more candidates when the arena covers multiple design directions.
+3. Pick the runners. Spawn one Agent tool call per candidate, model `sonnet` for bulk generation or `claude-opus-4-8[1m]` (never bare `opus`) when the task is judgment-sensitive rather than generation-bound; same model N times is fine when the work is generation-bound. Spawn more candidates when the arena covers multiple design directions.
 4. Assign output paths. Each candidate needs an isolated working tree — use the Agent tool's `isolation: "worktree"` option so each runs in its own git worktree. N candidates writing to the same path is shared mutable state that corrupts under concurrent writes. Grafting (Phase E) happens back in the main checkout, not inside any candidate's worktree.
 
 ## Phase B: Fan out

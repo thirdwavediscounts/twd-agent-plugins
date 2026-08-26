@@ -65,7 +65,7 @@ Launch all seats in a single message, each a fresh context:
 
 | Seat | Runner | Brief |
 |------|--------|-------|
-| A | `general-purpose`, model `opus` | Drives the surface like a user — `/shelly:webapp-testing` Playwright or the Chrome tools — and records the passing drive (Step 5) |
+| A | `general-purpose`, model `claude-opus-4-8[1m]` | Drives the surface like a user — `/shelly:webapp-testing` Playwright or the Chrome tools — and records the passing drive (Step 5) |
 | B | `general-purpose`, model `sonnet` | Same brief as A, independently |
 | C | Codex (`gpt-5.6-sol`, high effort) via `bash <plugin>/bin/codex-verify.sh "<claim>" "<surface>"` | Command-line repro only (tests, tsx, curl) — Codex has no browser tools |
 
@@ -111,7 +111,7 @@ Claim: <the claim(s) from Step 1>
 
 | Seat | Model | Verdict | Repro |
 |------|-------|---------|-------|
-| A | opus | VERIFIED | <one-line repro> |
+| A | claude-opus-4-8[1m] | VERIFIED | <one-line repro> |
 | B | sonnet | VERIFIED | <one-line repro> |
 | C | gpt-5.6-sol | VERIFIED | <one-line repro> |
 
