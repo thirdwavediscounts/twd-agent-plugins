@@ -51,7 +51,7 @@ Open the file, copy its numbered steps into the todo list.
 - **Autonomous run** — exit predicate first, decision trail every iteration. `playbooks/autonomous-run.md`
 - **Session pickup** — `/shelly:session-pickup`. `playbooks/session-pickup.md`
 - **Pause safely** — `/shelly:pause-safely`. `playbooks/pause-safely.md`
-- **Verify an app** — `/shelly:create-verification-skill`, `/shelly:maintain-verification-skill`. `playbooks/verify-an-app.md`
+- **Verify an app** — `/shelly:verify-live` after a merge, `/shelly:create-verification-skill`, `/shelly:maintain-verification-skill`. `playbooks/verify-an-app.md`
 - **Authoring a skill** — `/shelly:writing-for-agents`, dry-run, eval. `playbooks/authoring-a-skill.md`
 
 ## Always pause

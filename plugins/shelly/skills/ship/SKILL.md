@@ -161,9 +161,10 @@ step for branches that carry no ticket id.
   this PR resolved; leave genuinely separate follow-ups open.
 - If the ticket has a `## Verify (post-deploy)` checklist with items that a merge
   can't prove, do NOT mark it Done: leave it `In Review`, comment "merged +
-  deployed, not yet proven in prod", schedule the read-only prod check for after
-  the next real run, and only then flip it Done (Sean, 2026-08-17: "verify it's
-  working on prod first before we mark done"). Hold the `/worklog` row until then.
+  deployed, not yet proven in prod", then prove it with `/shelly:verify-live`
+  (drive the deployed build against staging; no waiting for a real event) and
+  only then flip it Done (Sean, 2026-08-17: "verify it's working on prod first
+  before we mark done"). Hold the `/worklog` row until then.
 - **Bugsink:** if the ticket cites a Bugsink issue (`PRODUCT-RESEARCH-1`,
   `CCG-12`, …), open it in the browser (real URL is
   `https://bugsink.repsxi.com/issues/issue/<uuid>/event/last/` — the bare
