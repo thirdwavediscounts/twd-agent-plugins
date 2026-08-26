@@ -22,7 +22,24 @@ Names that cost a round trip before: the documents table is
 `prv2.research_doc_documents` (not `research_documents`); the sheet name column
 is `name` (not `sheet_name`).
 
-Worked run, 2026-08-26 (DEV-137 / PR #697): fixture
-`ACE_Tools,-Outdoor-Power-Equip-NEW-1000.csv` from Jake's 08/25 extension ZIP →
-Import & Start Analysis on doc 239 → sheet 4518 `end_time = 2026-08-26T17:00:00.000Z`
-(10:00 AM PDT on the upload day); prod count since start = 0; sheet deleted.
+Worked runs, 2026-08-26 (DEV-137 / PR #697), doc 239, both prod-count 0 after:
+
+- claude-in-chrome, Sean's session: `ACE_Tools,-Outdoor-Power-Equip-NEW-1000.csv`
+  → sheet 4518 `end_time = 2026-08-26T17:00:00.000Z` (10:00 AM PDT).
+- Playwright, saved storageState as `sean+verify@`:
+  `ACE_Sporting-Goods,-Tools-UG-1015.csv` → sheet 4519
+  `end_time = 2026-08-26T17:15:00.000Z` (10:15 AM PDT), `updated_by =
+  sean+verify@thirdwavediscounts.com`. Both sheets deleted.
+
+Playwright driver shape (run from `apps/product-research/.verify-boot/`, a
+scratch dir you delete in cleanup — copy the skill's `scripts/*.mjs` in so the
+bare `@supabase/supabase-js` / `@playwright/test` imports resolve against the
+app's node_modules): `chromium.launch()` → `newContext({ storageState,
+recordVideo: { dir, size: { width: 1280, height: 800 } } })` → `addInitScript(()
+=> localStorage.setItem("prv2-app-environment","staging"))` →
+`goto(<app>/documents/239)` → assert `innerText` contains "02/30 Bad Date" and
+the URL is not `/login` → `locator('input[type=file]').setInputFiles(fixture)` →
+click **Import & Start Analysis** twice (first mounts the preview, second writes)
+→ wait → `page.video().path()` then `context.close()` to finalize the `.webm` →
+read the row back over the staging MCP. The "import complete" toast is easy to
+miss on timing; trust the DB row, not the banner.
