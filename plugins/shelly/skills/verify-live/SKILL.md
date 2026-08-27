@@ -139,5 +139,4 @@ pointer to a local file or deleted rows.
 
 Claim → trigger → doctor witnesses (sha, fixture name) → drive → stored values
 → prod count → video attached to the ticket → cleanup done. If the ticket has a
-post-deploy checklist, tick it with this evidence and move the ticket; hold
-`/worklog` for the shipped change, not for the verification.
+post-deploy checklist, tick it with this evidence and move the ticket.

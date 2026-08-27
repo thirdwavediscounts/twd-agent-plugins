@@ -1,6 +1,6 @@
 ---
 name: unslop
-description: Cut AI tells from any writing that leaves the session — docs, specs, tickets, PR descriptions, Linear comments, worklog rows, artifacts, README/CLAUDE.md edits. Always apply before publishing prose; also use on request ("unslop this") for any existing text.
+description: Cut AI tells from any writing that leaves the session — docs, specs, tickets, PR descriptions, Linear comments, artifacts, README/CLAUDE.md edits. Always apply before publishing prose; also use on request ("unslop this") for any existing text.
 ---
 
 # Unslop
@@ -9,7 +9,7 @@ Edit text to remove AI patterns and keep a human voice. Adapted from pstack's un
 
 ## Scope
 
-- **Always** on prose that leaves the session: specs, tickets, Linear comments, PR titles/bodies, commit messages, docs, artifacts, worklog rows, README/CLAUDE.md/skill edits.
+- **Always** on prose that leaves the session: specs, tickets, Linear comments, PR titles/bodies, commit messages, docs, artifacts, README/CLAUDE.md/skill edits.
 - Terminal replies to Sean follow his reporting style first (extremely concise, grammar optional) — unslop's *pattern bans* still apply there, but don't "add soul" to a status report.
 - Code comments: the repo's comment rules win; unslop only strips the tells (bold labels, emoji, filler).
 

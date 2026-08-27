@@ -1,4 +1,0 @@
-schema_version: "1.1"
-name: worklog-draft-row
-baseline_prompt:
-  worklog: "Draft a work-log row for a spreadsheet, readable by a non-technical manager, from these facts."

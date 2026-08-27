@@ -217,8 +217,7 @@ The trigger is Sean merging (or telling you to). Do NOT do this from an open PR.
    what that leaves in review / up next in this project. The project page must
    tell the story without opening tickets — a ticket going Done with no
    project update is the gap this step closes.
-4. `/worklog` — draft the row, get Sean's OK, post it.
-5. **Name the next ticket.** `mcp__linear__get_issue({id, includeRelations: true})`
+4. **Name the next ticket.** `mcp__linear__get_issue({id, includeRelations: true})`
    → for each issue in `blocks`, re-fetch it: if every remaining `blockedBy` is
    Done, it is now unblocked. Also list the parent's other children
    (`list_issues({parentId})`) that are Ready for Agent with no open blockers.
