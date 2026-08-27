@@ -90,7 +90,7 @@ ci-local.sh <branch sha>
 - **Works from a worktree since 2026-08-26**: the script resolves the main
   checkout via `git rev-parse --git-common-dir` and clones that (worktrees share
   the object store), while the ref resolves in the invoking checkout, so a bare
-  `ci-local.sh` inside `.claude/worktrees/<name>` tests THAT worktree's HEAD. An
+  `ci-local.sh` inside `../twd-worktrees/<name>` tests THAT worktree's HEAD. An
   older copy of the script still fails from a worktree as
   `ERR_PNPM_AUDIT_NO_LOCKFILE` / `pnpm ls` OOM — a fake dependency error; `cd` to
   the main checkout and pass the sha.
@@ -178,7 +178,7 @@ step for branches that carry no ticket id.
 ```
 git checkout main && git pull origin main
 git branch -D <branch>            # -d refuses after a squash merge
-git worktree remove .claude/worktrees/<name>   # if the branch had one
+git worktree remove ../twd-worktrees/<name>    # if the branch had one
 git worktree prune
 ```
 

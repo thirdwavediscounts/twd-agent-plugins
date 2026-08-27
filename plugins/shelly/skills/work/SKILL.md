@@ -44,26 +44,31 @@ work genuinely needs a second app, stop and ask.
 Project instruction: **this session works in a worktree.** Do it now — before
 reading app source, dispatching an agent, or editing a line, not after.
 
-Update the base ref first, then create the worktree with Claude's native
-worktree tool — it branches off fresh `origin/main` and moves the session in:
+Update the base ref first, then create a **sibling worktree** off fresh
+`origin/main` and move the session into it:
 
 ```
 git fetch origin
+git worktree add -b sean/<ticket>-<slug> ../twd-worktrees/<ticket-lower> origin/main
 ```
 
+Then switch the session in with the absolute path git just created
+(`<checkout-parent>/twd-worktrees/<ticket-lower>` — run `git worktree list` to
+see it):
+
 ```
-EnterWorktree({ name: "<ticket-lower>" })
+EnterWorktree({ path: "<absolute worktree path>" })
 ```
 
-- Lands at `<main checkout>/.claude/worktrees/<ticket-lower>`, which is
-  gitignored — nothing about it reaches a commit or a Vercel build.
-- **Never `git worktree add ~/Code/twd-<name>-wt`** — the `~/Code` sibling
-  convention is retired.
-- The tool names the branch `worktree-<name>`. Rename it to ours immediately,
-  from inside the worktree, before the first commit:
-  `git branch -m sean/<ticket>-<slug>` (`<slug>` = 3–5 kebab words from the
-  title). After the rename `ExitWorktree` can no longer delete the branch, so
-  cleanup deletes it explicitly — `/ship` already does.
+- Lands at `<checkout-parent>/twd-worktrees/<ticket-lower>` — a sibling of the
+  main checkout (e.g. `~/Code/twd-worktrees/dev-101`), outside the repo, so
+  nothing about it reaches a commit or a Vercel build. `git worktree add -b`
+  auto-creates the `twd-worktrees/` parent, and the branch-guard hook allows it
+  even from the shared checkout.
+- The branch is created as `sean/<ticket>-<slug>` directly — no rename step.
+  `<slug>` = 3–5 kebab words from the title.
+- Path-entered worktrees are cleaned up explicitly (`git worktree remove`) —
+  `ExitWorktree` never removes them; `/ship` already does the removal.
 - After this the session cwd **is** the worktree — plain `pnpm`, `git`, and file
   edits act on it, and every subagent inherits it as cwd. No `git -C`, no path
   juggling; that indirection is what let past sessions edit the main checkout by
@@ -202,9 +207,9 @@ The trigger is Sean merging (or telling you to). Do NOT do this from an open PR.
    `sean/ <title>` subject and deletes the remote branch. When it reaches its
    **cleanup** step, call `ExitWorktree({ action: "keep" })` first: `git checkout
    main` and `git worktree remove` cannot run from inside the worktree they are
-   deleting. Use `keep`, never `remove` — `remove` refuses whenever the worktree
-   still holds commits it thinks are unmerged, and it cannot delete the renamed
-   `sean/…` branch anyway. `/ship` removes the worktree and deletes the branch.
+   deleting. Use `keep` — a path-entered worktree can only be exited with `keep`;
+   `/ship` then removes the sibling worktree (`git worktree remove
+   ../twd-worktrees/<name>`) and deletes the branch.
 2. `mcp__linear__save_issue({id, state: "Done"})` — this is the **only** place
    the ticket goes Done. Close any still-open sub-issues that the PR resolved.
 3. **Project status update.** If the ticket belongs to a Linear project,
