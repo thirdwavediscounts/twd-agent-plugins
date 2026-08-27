@@ -56,13 +56,24 @@ ARGUS_SSH_KEY="-----BEGIN OPENSSH PRIVATE KEY-----
 ARGUS_KNOWN_HOST="204.168.143.179 ssh-ed25519 AAAA…"
 ```
 
-Append to the setup script:
+The files are written by the plugin's SessionStart hook
+`hooks/cloud-materialize.sh` (0.6.2), not by the setup script: the setup script
+runs before the environment variables exist and its filesystem is
+snapshot-cached for ~7 days, so anything it wrote from `$ARGUS_SSH_KEY` was a
+1-byte stub (DEV-165, 2026-08-27). The hook writes `~/.ssh/argus`,
+`known_hosts`, the `Host ken-ai-agents` block, `creds.json` and — when
+`INFISICAL_*` are set — the three `.env` files, and prints one status line
+with sizes/counts only. The setup script only provisions:
 
 ```
-mkdir -p ~/.ssh && chmod 700 ~/.ssh
-printf '%s\n' "$ARGUS_SSH_KEY" > ~/.ssh/argus && chmod 600 ~/.ssh/argus
-printf '%s\n' "$ARGUS_KNOWN_HOST" >> ~/.ssh/known_hosts
-printf 'Host ken-ai-agents\n  HostName %s\n  User root\n  IdentityFile ~/.ssh/argus\n  IdentitiesOnly yes\n' "$ARGUS_HOST" > ~/.ssh/config
+#!/bin/bash
+set -e
+REPO=$(find /home/user -maxdepth 3 -name pnpm-workspace.yaml -not -path '*/node_modules/*' | head -1 | xargs -r dirname)
+cd "$REPO"
+corepack enable && corepack prepare pnpm@10.33.2 --activate
+pnpm install --frozen-lockfile
+pnpm exec playwright install --with-deps chromium || pnpm exec playwright install chromium
+npm install -g @infisical/cli
 ```
 
 Same alias as the Mac (`ssh ken-ai-agents`), so every skill and memory that
