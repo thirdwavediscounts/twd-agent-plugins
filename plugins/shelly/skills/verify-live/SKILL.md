@@ -105,7 +105,7 @@ const proxy = u ? { server: `${u.protocol}//${u.host}`,
   password: decodeURIComponent(u.password) || undefined } : undefined;
 ```
 
-Locally `HTTPS_PROXY` is unset and `proxy` is `undefined` → `addInitScript` to set the staging switch before the app's JS runs
+Locally `HTTPS_PROXY` is unset and `proxy` is `undefined`. Then `addInitScript` to set the staging switch before the app's JS runs
 → `goto` → `setInputFiles` → the real write path (click **Import & Start
 Analysis** twice: first mounts the preview, second writes). Record video on
 every run: `recordVideo` finalizes on `context.close()`, and `page.video().path()`
