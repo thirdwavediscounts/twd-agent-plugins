@@ -116,8 +116,8 @@ cleanup (worktree remove + prune, delete local and remote `sean/` branch —
 CLAUDE.local.md "Worktree & Branch Cleanup").
 
 Tree exhausted (every child/grandchild Done or explicitly parked): final
-summary to Sean — per ticket: PR, status, anything parked and why — then
-offer `/worklog`. Stray teammates still in ListAgents get shutdown requests.
+summary to Sean — per ticket: PR, status, anything parked and why. Stray
+teammates still in ListAgents get shutdown requests.
 
 ## Crash recovery
 

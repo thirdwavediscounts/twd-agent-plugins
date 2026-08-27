@@ -164,7 +164,7 @@ step for branches that carry no ticket id.
   deployed, not yet proven in prod", then prove it with `/shelly:verify-live`
   (drive the deployed build against staging; no waiting for a real event) and
   only then flip it Done (Sean, 2026-08-17: "verify it's working on prod first
-  before we mark done"). Hold the `/worklog` row until then.
+  before we mark done").
 - **Bugsink:** if the ticket cites a Bugsink issue (`PRODUCT-RESEARCH-1`,
   `CCG-12`, …), open it in the browser (real URL is
   `https://bugsink.repsxi.com/issues/issue/<uuid>/event/last/` — the bare
@@ -191,6 +191,3 @@ State plainly: what merged, the PR number, the gate results, and anything left
 open (a migration Sean still has to run, a follow-up branch, an unanswered
 question). If a DB migration is part of the change, say explicitly that
 production is still **not** migrated — merging a migration file does not run it.
-
-Then consider whether `/worklog` applies (it does for shipped features and
-schema changes; not for research, Q&A, or config-only sessions).
