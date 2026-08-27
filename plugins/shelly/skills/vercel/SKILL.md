@@ -1,6 +1,6 @@
 ---
 name: vercel
-description: Vercel fleet rules for the twd monorepo. Load BEFORE editing any vercel.json, deploy.sh, or package.json dependency edge, adding/renaming an app or Vercel project, debugging a failed/skipped/missing deployment, reading build logs, or reasoning about why projects rebuilt or what a merge will rebuild.
+description: Vercel fleet rules for the twd monorepo. Load BEFORE editing any vercel.json or package.json dependency edge, adding/renaming an app or Vercel project, debugging a failed/skipped/missing deployment, reading build logs, or reasoning about why projects rebuilt or what a merge will rebuild.
 ---
 
 # Vercel — twd fleet rules
@@ -78,10 +78,11 @@ after any merge touching this — it only fails post-merge.
 
 ## Deploying
 
-- Merge to `main` is the deploy path. **Rebase before any push/deploy** —
-  `git rev-list --count HEAD..origin/main` nonzero = STOP. `deploy.sh`
-  prebuilt deploys upload the local working tree verbatim; a stale base
-  silently reverts prod (the 148-commits-behind CCG incident).
+- Merge to `main` is the deploy path (per-app git autodeploy; every project is
+  `git.deploymentEnabled: { "**": false, "main": true }`). **Rebase before any
+  push** — `git rev-list --count HEAD..origin/main` nonzero = STOP before merging.
+  Prod builds only from what lands on `main`, so a stale branch can't overwrite it
+  the way the old manual prebuilt deploy could (the 148-commits-behind CCG incident).
 - **Batch small changes**: each merge to `main` is a full prod build of every
   affected app. One PR per coherent unit, not per tweak.
 - Merge subject: `sean/ <PR title>` (Vercel labels deployments with the merge

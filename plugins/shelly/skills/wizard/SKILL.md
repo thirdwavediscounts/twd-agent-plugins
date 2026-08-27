@@ -25,7 +25,7 @@ A wizard is ephemeral by default — built for one run, saved to the scratchpad 
 
 Work out every manual step the human must take and every value captured along the way. Read the repo first — don't ask cold:
 
-- For setup: `.env`, `.env.example`, `README`, framework config, `.github/workflows/*` (every `secrets.*` / `vars.*` reference is a value the wizard must produce), and for this fleet: `.mcp.json`, the app's `deploy.sh`.
+- For setup: `.env`, `.env.example`, `README`, framework config, `.github/workflows/*` (every `secrets.*` / `vars.*` reference is a value the wizard must produce), and for this fleet: `.mcp.json`.
 - For a migration or transition: the current state, the target state, and the irreversible actions between them.
 
 Then show the user the ordered list of stages and the values each produces, and confirm — they may add, drop, or reorder. Use the grilling question format for any open choices.
