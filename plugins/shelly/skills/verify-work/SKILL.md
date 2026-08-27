@@ -1,6 +1,6 @@
 ---
 name: verify-work
-description: Use after an implementation lands, before the PR — "verify the work", "verify the fix", "prove it works", or whenever an agent-built fix or feature needs independent runtime proof. Blind fresh-context verifiers on three models (Opus, Sonnet, Codex) re-derive a repro from the claim alone — never the diff — and prove the behavior on the running surface, with a recorded artifact.
+description: Use after an implementation lands, before the PR — "verify the work", "verify the fix", "prove it works", or whenever an agent-built fix or feature needs independent runtime proof. Blind fresh-context verifiers on three models (Opus, Sonnet, Fable) re-derive a repro from the claim alone — never the diff — and prove the behavior on the running surface, with a recorded artifact.
 ---
 
 # Verify Work
@@ -48,8 +48,7 @@ You do setup so verifiers verify instead of fighting launches:
   itself, and hand verifiers the script. A verifier that holds the env path
   will open it when its first script fails (2026-08-25: seat B catted `.env`
   through a filter that missed `postgresql://` — prod pooler password in the
-  transcript). Codex (seat C) gets the same wrapper; its transcript leaves the
-  machine.
+  transcript). Seat C gets the same wrapper too.
 - Create an evidence directory in the scratchpad; each verifier writes only
   there.
 - Snapshot `git status --short` for the residue check in Step 5.
@@ -67,12 +66,15 @@ Launch all seats in a single message, each a fresh context:
 |------|--------|-------|
 | A | `general-purpose`, model `claude-opus-4-8[1m]` | Drives the surface like a user — `/shelly:webapp-testing` Playwright or the Chrome tools — and records the passing drive (Step 5) |
 | B | `general-purpose`, model `sonnet` | Same brief as A, independently |
-| C | Codex (`gpt-5.6-sol`, high effort) via `bash <plugin>/bin/codex-verify.sh "<claim>" "<surface>"` | Command-line repro only (tests, tsx, curl) — Codex has no browser tools |
+| C | `general-purpose`, model `fable` | Command-line repro only (tests, tsx, curl) — no browser tools, for verification-approach diversity |
 
-Seats A and B get `references/verifier-prompt.md` filled with the claim, the
-surface, and the evidence directory; the filled template is their entire brief.
-Seat C's prompt lives inside the script; pass claim and surface as arguments
-and treat exit 0 as "a valid verdict came back", nothing more.
+All three seats get `references/verifier-prompt.md` filled with the claim, the
+surface, and the evidence directory; the filled template is each one's entire
+brief. Seat C works command-line only. Effort for seat C: sized by the lead to
+the diff — `medium` for docs/one-liners, `high` for app logic, `xhigh` for
+anything touching packages/*, a DB migration/RPC/trigger, root config, or a
+frozen runtime contract. Set the session effort accordingly before spawning
+(the Agent tool spawn inherits it).
 
 Scale to the task: no drivable UI → A and B go command-line too; a trivial
 mechanical change → two seats. Never one seat, and never one model family —
@@ -113,7 +115,7 @@ Claim: <the claim(s) from Step 1>
 |------|-------|---------|-------|
 | A | claude-opus-4-8[1m] | VERIFIED | <one-line repro> |
 | B | sonnet | VERIFIED | <one-line repro> |
-| C | gpt-5.6-sol | VERIFIED | <one-line repro> |
+| C | fable | VERIFIED | <one-line repro> |
 
 Overall: work-verified
 Evidence: <recording path / ticket attachment>

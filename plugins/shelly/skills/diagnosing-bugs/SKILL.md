@@ -11,6 +11,8 @@ When exploring the codebase, read `CONTEXT.md` (if it exists) to get a clear men
 
 Scope note: this skill is for a bug that is in front of you in this codebase/process. For a cross-system symptom whose cause could live anywhere in the fleet (database, another app, the Argus engine on the VPS, Vercel), run the `/investigate` workflow instead — it probes every layer read-only and posts findings to Linear.
 
+From a cloud session (claude.ai/code), the VPS over ssh is not reachable (no ssh key) — a bug that needs `journalctl` or a VPS-side repro is a blind spot from there; record it as such and keep any conclusion provisional rather than faking the probe.
+
 ## Redact
 
 This skill has you show commands, outputs and captured artifacts. **Redact every secret first** — write `<REDACTED>` in its place. Build loops against env vars, so the credential stays in the environment rather than in what you show. Captured artifacts carry auth headers: quote only the lines that carry the signal.

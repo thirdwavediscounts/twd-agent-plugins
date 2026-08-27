@@ -6,6 +6,8 @@ Operational logs for services running on the VPS, most relevantly the argus-engi
 
 ## How to search it
 
+From a cloud session (claude.ai/code), `ssh ken-ai-agents` is not reachable — cloud has no ssh key or secrets store. Record the VPS journal as a blind spot and mark any conclusion that leans on it provisional; don't fake the probe.
+
 ```bash
 ssh ken-ai-agents
 

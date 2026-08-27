@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Break a plan, spec, or conversation into **tickets** — tracer-bullet vertical slices, each declaring the tickets that **block** it — structured in Linear so nothing blurs across projects.
 
-Tracker: Linear, team **Dev** (keys `DEV-n`), via the `mcp__linear__*` tools. Repo triage labels may be defined in `docs/agents/triage-labels.md`.
+Tracker: Linear, team **Dev** (keys `DEV-n`), via the `mcp__linear__*` tools. Repo triage labels may be defined in `${CLAUDE_PLUGIN_ROOT}/docs/agents/triage-labels.md`.
 
 ## Process
 

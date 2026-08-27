@@ -108,10 +108,10 @@ Run the full explain flow above (Steps 1-4). You must understand the architectur
 
 ### Step 2. Spawn Critics
 
-After the explanation is complete, run two independent critics — one Claude, one cross-model:
+After the explanation is complete, run two independent critics, each fresh-context:
 
 1. Architectural judgment critic — Agent tool, `subagent_type`: `general-purpose`, `model`: `fable`, prompt built from `references/critic-prompt.md`.
-2. Cross-model critic — the Codex default model (`~/.codex/config.toml`, gpt-5.6-sol today) via `codex exec --sandbox read-only -c 'model_reasoning_effort="xhigh"' "$(cat critic-packet.md)"` (default model from `~/.codex/config.toml`; xhigh keeps a critique under ~10 min) in the background, with the same filled critic prompt (written to a file first). `shelly:codex-reviewer` reviews a *branch diff*; committed code on `main` has none, so call `codex exec` directly here.
+2. Independent adversarial critic — Agent tool, `subagent_type`: `general-purpose`, `model`: `fable`, same filled critic prompt, spawned fresh so it has no memory of critic 1's reasoning. Effort sized by the lead to the diff — `medium` for docs/one-liners, `high` for app logic, `xhigh` for anything touching packages/*, a DB migration/RPC/trigger, root config, or a frozen runtime contract; set the session effort accordingly before spawning it.
 
 Each critic gets: the explanation from Step 1, the relevant file paths, and `references/critique-rubric.md`.
 

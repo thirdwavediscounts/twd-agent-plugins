@@ -8,6 +8,8 @@ license: Complete terms in LICENSE.txt
 
 To test local web applications, write native Python Playwright scripts.
 
+From a cloud session (claude.ai/code), you can still start and drive a local dev server yourself — that part of this skill works as written. What's gone is Sean looking at it on his own machine; treat any check that assumes a human is watching the running app as unavailable there.
+
 **Helper Scripts Available**:
 - `scripts/with_server.py` - Manages server lifecycle (supports multiple servers)
 

@@ -41,9 +41,14 @@ Launch all reviewers in a single message using the Agent tool. The panel is fixe
 | Reviewer | Agent | Notes |
 |----------|-------|-------|
 | Reviewer A | `shelly:code-reviewer` | Claude, judges against the team's standards (CLAUDE.md's four principles, `packages/guidelines/EXAMPLES.md`) |
-| Reviewer B | `shelly:codex-reviewer` | GPT-5.4 cross-model adversarial pass. It wraps `.claude/scripts/codex-review-diff.sh` internally — that script is the canonical way to run Codex against the diff; don't call it directly, spawn the agent |
+| Reviewer B | `general-purpose`, model `fable` | Independent fresh-context adversarial pass — no memory of this session's reasoning, no longer cross-model |
 | Reviewer C | `shelly:security-auditor` | Auth/RLS gaps, secret leakage, injection, unsafe input handling |
 | Reviewer D | `general-purpose`, model `claude-opus-4-8[1m]` | Given `references/reviewer-prompt.md` directly, same as the other three |
+
+Reviewer B's effort is sized by the lead to the diff — `medium` for
+docs/one-liners, `high` for app logic, `xhigh` for anything touching
+packages/*, a DB migration/RPC/trigger, root config, or a frozen runtime
+contract. Set the session effort accordingly before spawning it.
 
 Read `references/reviewer-prompt.md` and fill in the template with:
 1. The stated intent
@@ -51,7 +56,7 @@ Read `references/reviewer-prompt.md` and fill in the template with:
 3. The review rubric from `references/rubric.md`
 4. The code-quality lens from `references/code-quality-review.md`
 
-Reviewers A–C have their own system prompts and read-only tool access already scoped to their role; hand them the filled template as their task prompt so all four apply the same rubric and code-quality lens. Reviewer D has no built-in review prompt, so the filled template is its entire brief.
+Reviewers A and C have their own system prompts and read-only tool access already scoped to their role; hand them the filled template as their task prompt so all four apply the same rubric and code-quality lens. Reviewers B and D have no built-in review prompt, so the filled template is each one's entire brief.
 
 Each reviewer produces structured findings as described in the prompt template.
 
