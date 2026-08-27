@@ -57,8 +57,8 @@ ticket before dispatching, so the plan survives this session.
   > Run `/work DEV-nnn` end to end. You were spawned by a `/team` lead: build
   > with subagent threads or an internal Workflow only — NEVER spawn pane
   > teammates of your own (panes never nest). Hard preconditions: you must be inside
-  > the ticket's own worktree (`EnterWorktree({name})` →
-  > `.claude/worktrees/dev-nnn`) before reading app
+  > the ticket's own sibling worktree (`git worktree add -b sean/<slug>
+  > ../twd-worktrees/dev-nnn origin/main` then `EnterWorktree({path})`) before reading app
   > source or editing anything — if worktree creation or EnterWorktree fails,
   > STOP and report to team-lead, do not edit in place. Stop at the first red
   > gate. Sean's localhost sign-off and push approval happen in YOUR pane —
