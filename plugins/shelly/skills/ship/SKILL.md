@@ -31,8 +31,8 @@ git rev-list --count HEAD..origin/main
 
 **Nonzero means STOP and rebase** (`git pull --rebase origin main`), resolve
 conflicts, then re-run the gates from scratch. A green build on a stale base
-proves nothing, and a prebuilt deploy uploads the working tree straight to prod
-— shipping stale silently reverts everyone else's merged work.
+proves nothing, and merging a stale, unrebased branch can silently revert
+everyone else's merged work.
 
 After rebasing, the count must read `0` before anything is pushed.
 

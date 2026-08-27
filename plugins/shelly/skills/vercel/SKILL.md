@@ -49,8 +49,8 @@ these rules exist to not spend it by accident.
   so in-flight branches leak previews until rebased.
 - Dashboard "Ignored Build Step" must stay **Automatic** — a custom command
   overrides the built-in skip (diagnostic giveaway in build logs:
-  `Running "if [ "$VERCEL_ENV" == "production" ]…"`). `pricers-hub` is the
-  deliberate holdout (git pushes canceled; deploys by CLI).
+  `Running "if [ "$VERCEL_ENV" == "production" ]…"`). All 14 apps deploy by git
+  autodeploy on merge to `main` — there is no CLI/prebuilt holdout.
 - Git author must be a Vercel team member or the deploy is refused — all git
   ops as `thirdwavediscounts`, never switch mid-task.
 
