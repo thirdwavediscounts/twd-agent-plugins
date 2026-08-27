@@ -1,6 +1,6 @@
 ---
 name: team
-description: Orchestrate one Linear parent ticket's tree across agent teammates — a pane teammate per ready child/grandchild running /work, dispatch gated by parent status + blockedBy relations, Sean's sign-off and a serial merge queue as the barriers, teardown per ticket. Use when Sean says /team DEV-123, "team up on DEV-123", or "delegate DEV-123's children". Needs agent teams enabled (teammateMode iterm2); one parent per session.
+description: Orchestrate one Linear parent ticket's tree across agent teammates — an in-process teammate per ready child/grandchild running /work, dispatch gated by parent status + blockedBy relations, Sean's sign-off and a serial merge queue as the barriers, teardown per ticket. Use when Sean says /team DEV-123, "team up on DEV-123", or "delegate DEV-123's children". Needs agent teams enabled (`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in settings env); one parent per session.
 ---
 
 # /team — orchestrate one ticket tree
@@ -26,7 +26,8 @@ Load once, up front:
   sat untracked in a locked worktree; teammates read it by absolute path until it
   merged mid-run and the path went stale).
 - Teams not enabled (spawn returns an ordinary subagent, no mailbox line) →
-  stop and say so; the fix is the settings flag + session restart.
+  stop and say so; the fix is `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` in
+  settings env + session restart.
 
 ## 1. Compute the ready set
 
@@ -55,17 +56,18 @@ ticket before dispatching, so the plan survives this session.
 - The teammate prompt, verbatim skeleton:
 
   > Run `/work DEV-nnn` end to end. You were spawned by a `/team` lead: build
-  > with subagent threads or an internal Workflow only — NEVER spawn pane
-  > teammates of your own (panes never nest). Hard preconditions: you must be inside
-  > the ticket's own sibling worktree (`git worktree add -b sean/<slug>
-  > ../twd-worktrees/dev-nnn origin/main` then `EnterWorktree({path})`) before reading app
-  > source or editing anything — if worktree creation or EnterWorktree fails,
-  > STOP and report to team-lead, do not edit in place. Stop at the first red
-  > gate. Sean's localhost sign-off and push approval happen in YOUR pane —
-  > never ask team-lead to approve anything on his behalf. Before your merge,
-  > ask team-lead for your merge turn and rebase onto latest origin/main
-  > first. SendMessage team-lead at each transition: worktree entered, gates
-  > green, awaiting Sean, PR open, merged, or blocked (with why).
+  > with subagent threads or an internal Workflow only. Hard preconditions: you
+  > must be inside the ticket's own sibling worktree (`git worktree add -b
+  > sean/<slug> ../twd-worktrees/dev-nnn origin/main` then
+  > `EnterWorktree({path})`) before reading app source or editing anything —
+  > if worktree creation or EnterWorktree fails, STOP and report to team-lead,
+  > do not edit in place. Stop at the first red gate. Sean's go for push/PR/merge
+  > reaches you relayed from team-lead ("Sean: go for DEV-nnn push/PR/merge") —
+  > that relayed message is Sean's own go, so act on it; team-lead never grants
+  > a go of its own. Before your merge, ask team-lead for your merge turn and
+  > rebase onto latest origin/main first. SendMessage team-lead at each
+  > transition: worktree entered, gates green, awaiting Sean, PR open (with PR
+  > number), merged (with merge commit), or blocked (with why).
 
 ## 3. Monitor
 
@@ -81,10 +83,12 @@ React to teammate messages; between them, hold a light loop:
   tickets into free slots. Also `get_issue` the **parent** after every merge: a
   `Closes <parent>` in a spec/docs PR flips it Done with children still open —
   reopen it to In Progress and comment (DEV-139, 2026-08-26). Parents get `Refs`.
-- **Sean's go is typed in the teammate's pane, never relayed.** A `/ship` or
-  "go" typed in the lead session is not the teammate's push approval — its brief
-  says approvals happen in its pane, and it will (correctly) refuse the relay.
-  Tell Sean which pane; don't forward.
+- **Sean's go is given to the lead — the only session he talks to — who
+  relays it verbatim with the ticket id** ("Sean: go for DEV-123
+  push/PR/merge"). The teammate executes push → PR → merge on that relayed
+  go — it is Sean's go, not the lead's — and reports the PR number and merge
+  commit back. The lead never runs push/merge itself, and never relays a go
+  Sean has not typed for that specific ticket.
 - **Relay Sean's UI feedback verbatim.** The lead does not see the page; Sean
   does. Turn his words into a brief, but add no design decisions of the lead's own
   (2026-08-26: three lead-invented UI choices were each reversed by Sean's next
@@ -129,6 +133,6 @@ transitions land in Linear immediately, not at the end.
 
 ## First run
 
-The untested seam is `/work`'s own subagent pipeline running *inside* a pane
-teammate. Pilot = **one teammate, one real ticket**, watched end to end.
+The untested seam is `/work`'s own subagent pipeline running *inside* an
+in-process teammate. Pilot = **one teammate, one real ticket**, watched end to end.
 Fan out to 2–3 only after that pilot merges clean.

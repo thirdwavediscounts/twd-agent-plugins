@@ -27,42 +27,41 @@ Where a `check:vercel-build` script exists, run it and report its result like an
 other gate. If it reports SKIPPED, say SKIPPED — that is "could not verify", not
 a pass. Never infer this check's result from `typecheck` passing.
 
-## The full CI gate — `ci-local.sh`
+## The full CI gate — GitHub Actions on the PR
 
 Per-app checks answer "does this app still work". They do NOT answer "would CI
 pass", because CI also runs the cross-app audits, the product-research coverage
 ratchet, the backend-registry freshness check and the unauthenticated browser
 smoke — and it runs all of it on a clean Linux checkout.
 
-`ci-local.sh [ref]` runs `.github/workflows/ci.yml`'s `verify` job
+`.github/workflows/ci.yml` runs on every `pull_request` now (plus manual
+dispatch), and its `verify` job is that clean-checkout run — the real gate.
+Read it with `gh pr checks <PR> --watch` and quote the actual per-check
+result. If you have not checked it, the branch is unverified; say that
+plainly rather than reporting per-app greens as if they were CI.
+
+`${CLAUDE_PLUGIN_ROOT}/bin/ci-local.sh [ref]` runs the same `verify` job
 step-for-step inside an ephemeral Linux container (`--rm`), against a fresh
-clone with `node_modules` rebuilt from the lockfile alone. Run it before
-declaring a branch merge-ready, and quote its per-step PASS/FAIL output.
+clone with `node_modules` rebuilt from the lockfile alone. It's the fallback
+for two cases only: GitHub refused to queue the run because the monthly
+Actions allowance is exhausted ("The job was not started because ... your
+spending limit needs to be increased"), or the machine is offline. Never run
+it in a cloud session (claude.ai/code has no Docker) — cloud sessions rely on
+the Actions check alone.
 
-**This is now the ONLY gate, not a pre-check.** `ci.yml` is `workflow_dispatch`
-only — the repo's Actions allowance is spent, so nothing runs on push or PR and
-GitHub reports no checks at all. An absent check is not a passing one. If you
-have not run this script, the branch is unverified; say that plainly rather
-than reporting per-app greens as if they were CI.
-
-**Why it beats running the gates in the working tree** — the working tree is
+**Why the clean-checkout run beats the working tree** — the working tree is
 the dirty thing. Both of these were real:
 - a stale `node_modules/@supabase/auth-js` directory satisfied a phantom
   dependency locally, hiding a type error that only failed on a clean install;
 - leftover `.next/` files and an untracked `public/sw.js` produce ~14,600 lint
   errors that exist on no other machine, drowning real ones.
 
-**Report its limits honestly** when you use it:
+**Report `ci-local.sh`'s limits honestly** when you use it:
 - it runs on the host's CPU architecture (arm64 on Apple Silicon, where GitHub
   is x86_64), so native-binary differences can hide. `--amd64` closes that via
   emulation, much slower;
-- it only covers branches on THIS machine. Dependabot PRs and teammates'
-  branches now get no automated verification whatsoever, so they need someone
-  to pull the branch and run this before merge — flag that when one comes up
-  rather than letting an unchecked PR read as clean.
-
-If Docker is not running it exits non-zero with a clear message. That is
-"could not verify", not a pass.
+- if Docker is not running it exits non-zero with a clear message. That is
+  "could not verify", not a pass.
 
 ## How you work
 - **Run the commands. Paste the actual output.** Never assert "tests pass" without the command result in hand.

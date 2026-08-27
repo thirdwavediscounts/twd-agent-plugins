@@ -1,5 +1,14 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/operator-rules.sh" },
+          { "type": "command", "timeout": 15, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/git-staleness-check.sh" },
+          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-location-check.sh" }
+        ]
+      }
+    ],
     "UserPromptSubmit": [
       {
         "hooks": [
@@ -7,6 +16,25 @@
             "type": "command",
             "timeout": 5,
             "command": "f=\"$HOME/.claude/shelly-mode/$(basename \"$PWD\")\"; [ -f \"$f\" ] && jq -n '{hookSpecificOutput:{hookEventName:\"UserPromptSubmit\",additionalContext:\"shelly-mode is active for this session (marker ~/.claude/shelly-mode/). Apply its intake and playbooks to this turn if one matches; delete the marker if the user opts out.\"}}' || true"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-branch-guard.sh" },
+          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/env-file-guard.sh" }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "timeout": 5,
+            "command": "jq 'if ((.tool_input.file_path // \"\") | test(\"\\\\.(test|spec)\\\\.[jt]sx?$|vitest\\\\.config\")) then {\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"SKILL REMINDER: You MUST invoke the `shelly:vitest` skill before creating or editing test files in the Vite apps, if you have not already done so this conversation.\"}} else {} end'"
           }
         ]
       }

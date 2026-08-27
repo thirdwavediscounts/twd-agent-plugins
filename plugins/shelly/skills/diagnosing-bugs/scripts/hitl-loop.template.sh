@@ -14,6 +14,10 @@
 #
 # `capture` prints its value back to the terminal, where the agent reads it — so
 # capture observations, and leave signing in to the user as a `step`.
+#
+# From a cloud session (claude.ai/code), there's no human at a local terminal to
+# drive through `step`/`capture` prompts — this loop is unusable there; pick
+# another Phase 1 approach instead.
 
 set -euo pipefail
 

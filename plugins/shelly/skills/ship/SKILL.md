@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Ship the current branch end to end — rebase onto origin/main, run the owning app's real gates (typecheck, test, build), run local CI in Docker (ci-local.sh, the clean-clone verify job — skippable only for markdown-only diffs), push, open the PR, merge with the Vercel-safe subject, and clean up the branch. Use when Sean says /ship, "ship it", "push and merge", or asks to take a finished branch to main. Stops on the first red gate rather than working around it.
+description: Ship the current branch end to end — rebase onto origin/main, run the owning app's real gates (typecheck, test, build), push, open the PR, wait for the GitHub Actions CI gate to go green (ci-local.sh is only the fallback for quota-refused or offline runs), merge with the Vercel-safe subject, and clean up the branch. Use when Sean says /ship, "ship it", "push and merge", or asks to take a finished branch to main. Stops on the first red gate rather than working around it.
 ---
 
 # /ship — take the current branch to `main`
@@ -72,43 +72,6 @@ Notes that have bitten before:
 
 Report actual output. Do not claim a gate passed that you did not run.
 
-## 3b. Local CI — the clean-clone gate, after the per-app gates
-
-There are no GitHub Actions on push (`ci.yml` is manual-dispatch only), so this
-is the only run against a clean install. The per-app gates above run in the
-dirty working tree; `ci-local.sh` clones the committed state
-fresh in a Linux container and runs the full `verify` job (fleet-wide
-`turbo build test typecheck lint`, product-research e2e + coverage + registry,
-dependency audits). It catches what the dirty tree hides: stale
-`node_modules`, leftover build artifacts, lockfile drift, cross-app breakage.
-
-```
-cd <main checkout root>
-ci-local.sh <branch sha>
-```
-
-- **Works from a worktree since 2026-08-26**: the script resolves the main
-  checkout via `git rev-parse --git-common-dir` and clones that (worktrees share
-  the object store), while the ref resolves in the invoking checkout, so a bare
-  `ci-local.sh` inside `../twd-worktrees/<name>` tests THAT worktree's HEAD. An
-  older copy of the script still fails from a worktree as
-  `ERR_PNPM_AUDIT_NO_LOCKFILE` / `pnpm ls` OOM — a fake dependency error; `cd` to
-  the main checkout and pass the sha.
-- **Committed state only.** The clone sees commits, not the working tree —
-  anything uncommitted is untested. Step 0 already forces this.
-- Needs Docker Desktop running; the script says so and exits if not.
-- ~4 min on a warm pnpm cache. Add `--amd64` before a risky merge
-  (native-binary deps changed) — slower, emulates GitHub's x86_64.
-- **Skip allowed only for markdown-only diffs** (`git diff --name-only
-  origin/main...HEAD` shows nothing but `*.md`): no build, test, or lint reads
-  them. Anything touching code, config, `package.json`, or the lockfile runs
-  the container. When skipping, say so in the PR body.
-- The container may run in the background (main checkout, branch sha) while
-  step 4 pushes and opens the PR; step 5's merge waits for `OVERALL: GREEN`.
-  A red only blocks the merge.
-- A red here with green per-app gates is the environment difference talking —
-  believe the container, it matches CI and a clean checkout.
-
 ## 4. Push and open the PR
 
 ```
@@ -129,6 +92,55 @@ to deploy a commit whose git author is not a team member. Never switch accounts
 mid-task.
 
 **If invoked as `/ship hold`, stop here** and report the PR URL.
+
+## 4b. CI gate — GitHub Actions on the PR
+
+`.github/workflows/ci.yml` runs on every `pull_request` now (plus manual
+dispatch) — GitHub Actions is the merge gate, not a local run. The `verify`
+job checks out a clean Linux clone and runs the fleet-wide `turbo build test
+typecheck lint`, product-research e2e + coverage + registry, and dependency
+audits — everything the per-app gates in step 3 can't see because they run in
+the dirty working tree (stale `node_modules`, leftover build artifacts,
+lockfile drift, cross-app breakage).
+
+```
+gh pr checks <N> --watch
+```
+
+Green required before step 5. **Skip allowed only for markdown-only diffs**
+(`git diff --name-only origin/main...HEAD` shows nothing but `*.md`): no
+build, test, or lint reads them. Anything touching code, config,
+`package.json`, or the lockfile waits for the check. When skipping, say so in
+the PR body.
+
+### Fallback: `ci-local.sh`
+
+Only for two cases: GitHub refused to queue the run because the monthly
+Actions allowance is exhausted (the refusal text is "The job was not started
+because ... your spending limit needs to be increased"), or the machine is
+offline. Never use it in place of a healthy Actions run, and never in a cloud
+session (claude.ai/code has no Docker) — cloud sessions rely on the Actions
+check alone.
+
+```
+cd <main checkout root>
+${CLAUDE_PLUGIN_ROOT}/bin/ci-local.sh <branch sha>
+```
+
+- **Works from a worktree since 2026-08-26**: the script resolves the main
+  checkout via `git rev-parse --git-common-dir` and clones that (worktrees share
+  the object store), while the ref resolves in the invoking checkout, so a bare
+  `ci-local.sh` inside `../twd-worktrees/<name>` tests THAT worktree's HEAD. An
+  older copy of the script still fails from a worktree as
+  `ERR_PNPM_AUDIT_NO_LOCKFILE` / `pnpm ls` OOM — a fake dependency error; `cd` to
+  the main checkout and pass the sha.
+- **Committed state only.** The clone sees commits, not the working tree —
+  anything uncommitted is untested.
+- Needs Docker Desktop running; the script says so and exits if not.
+- ~4 min on a warm pnpm cache. Add `--amd64` before a risky merge
+  (native-binary deps changed) — slower, emulates GitHub's x86_64.
+- A red here with green per-app gates is the environment difference talking —
+  believe the container, it matches CI and a clean checkout.
 
 ## 5. Merge — set the subject explicitly
 

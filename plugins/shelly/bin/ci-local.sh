@@ -53,8 +53,12 @@ for arg in "$@"; do
   esac
 done
 
-REPO="$(git rev-parse --show-toplevel)" || exit 1
-SHA="$(git -C "$REPO" rev-parse "$REF")" || { echo "unknown ref: $REF"; exit 1; }
+# The MAIN checkout, even when invoked from a .claude/worktrees/<name> worktree: a
+# worktree's .git is a pointer file to a host path the container cannot see, so the
+# inner clone would fail (ERR_PNPM_AUDIT_NO_LOCKFILE, pnpm ls OOM). Worktrees share
+# the object store, so cloning the main checkout still sees the worktree's commits.
+REPO="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")" || exit 1
+SHA="$(git rev-parse "$REF")"  # resolved in the invoking checkout, so HEAD means THIS worktree's HEAD || { echo "unknown ref: $REF"; exit 1; }
 
 # --- parity self-check --------------------------------------------------------
 # This script is a hand-maintained copy of .github/workflows/ci.yml. A copy that
@@ -117,7 +121,7 @@ step() {
     echo "::::: PASS: $name ($((SECONDS-t0))s)"
   else
     echo "::::: FAIL: $name ($((SECONDS-t0))s)"
-    tail -40 /tmp/step.log
+    tail -400 /tmp/step.log
     fail=1
   fi
 }

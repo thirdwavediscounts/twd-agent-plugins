@@ -22,7 +22,7 @@ The map is a single issue on this repo's issue tracker, labelled `wayfinder:map`
 
 The map is an **index**, not a store. It lists the decisions made and points at the tickets that hold their detail; a decision lives in exactly one place — its ticket — so the map never restates it, only gists it and links.
 
-**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** Tracker: Linear, team **Dev** (keys `DEV-n`), driven via the `mcp__linear__*` tools. Repo-specific tracker/triage config may live in `docs/agents/issue-tracker.md` and `docs/agents/triage-labels.md` — read them if present. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker.
+**Where the map, its child tickets, blocking, and frontier queries physically live is tracker-specific.** Tracker: Linear, team **Dev** (keys `DEV-n`), driven via the `mcp__linear__*` tools. Repo-specific tracker/triage config may live in `${CLAUDE_PLUGIN_ROOT}/docs/agents/issue-tracker.md` and `${CLAUDE_PLUGIN_ROOT}/docs/agents/triage-labels.md` — read them if present. Consult the tracker doc's "Wayfinding operations" section for how _this_ repo expresses them. If no tracker has been provided, default to the local-markdown tracker.
 
 ### The map body
 

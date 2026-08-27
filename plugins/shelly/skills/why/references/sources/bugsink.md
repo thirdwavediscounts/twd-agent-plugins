@@ -14,6 +14,8 @@ Most Dev-triage Linear tickets originate from a Bugsink error ticket, so if a `D
 
 ## How to search it
 
+From a cloud session (claude.ai/code), `ssh ken-ai-agents` is not reachable — cloud has no ssh key or secrets store. Record Bugsink as a blind spot and mark any conclusion that leans on it provisional; don't fake the probe.
+
 Reached over `ssh` to the VPS, via Django's management shell:
 
 ```bash

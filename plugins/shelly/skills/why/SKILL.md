@@ -109,6 +109,8 @@ Before spawning investigators, check which of the fleet's sources actually respo
 
 Don't assume; a source configured but unreachable this session is a gap to report, not a silent skip. Record ambiguous or half-reachable cases in the coverage map.
 
+From a cloud session (claude.ai/code), the VPS over ssh is not reachable (no ssh key, no secrets store) — that also takes Bugsink with it, since it's reached over ssh, not an MCP. Record both as a blind spot, mark any conclusion that would have leaned on them provisional, and don't fake the probe.
+
 Launch all matching investigators in a single message so they run concurrently. One investigator per category lets each specialize in one tool's query vocabulary and result shape. Don't ask one agent to cover multiple sources.
 
 Subagent config (each), via the Agent tool:

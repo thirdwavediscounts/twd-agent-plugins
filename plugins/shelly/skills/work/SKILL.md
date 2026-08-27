@@ -1,6 +1,6 @@
 ---
 name: work
-description: Take ONE Linear ticket from Ready-for-Agent to a merged PR — its own worktree (the session moves into it), the investigation plan as the build brief, the agent team to implement, real gates, a localhost check Sean signs off on, PR, and the Linear status transitions (In Progress → In Review → Done). Use when Sean says /work DEV-123, "work ticket DEV-123", or "pick up DEV-123". One ticket per session.
+description: Take ONE Linear ticket from Ready-for-Agent to a merged PR — its own worktree (the session moves into it), the investigation plan as the build brief, the agent team to implement, real gates, PR, and the Linear status transitions (In Progress → In Review → Done). Use when Sean says /work DEV-123, "work ticket DEV-123", or "pick up DEV-123". One ticket per session.
 ---
 
 # /work — take one ticket to `main`
@@ -98,10 +98,9 @@ of the session output before the first dispatch:
   enough to brief completely up front — a Workflow agent's thread dies with
   the run, so iterative fixes mean respawning cold. Sequence anything that
   doesn't meet the bar.
-- **Pane teammates**: only when Sean explicitly asks to watch lanes live in
-  panes. **Forbidden when this session was itself spawned by a `/team` lead**
-  (your spawn prompt says so) — panes never nest; fall back to the two options
-  above. `/team` is the one place pane teammates get created by default.
+- **In-process teammates**: only when Sean explicitly asks to watch lanes live
+  via SendMessage/ListAgents. `/team` is the one place teammates get created by
+  default.
 
 Then orchestrate, scoped to this ticket:
 
@@ -134,49 +133,24 @@ proof the fix works. A fix without a repro is a guess with a diff.
 - `qa-gate` for an independent confirmation; `code-reviewer` on the diff,
   `security-auditor` if it touches auth/RLS/secrets/input handling.
 - `/shelly:verify-work` — independent runtime proof of the ticket's claimed
-  behavior: blind fresh-context verifiers (Opus, Sonnet, Codex) re-derive the
+  behavior: blind fresh-context verifiers (Opus, Sonnet, Fable) re-derive the
   repro from the claim alone, never the diff, and drive the real surface; the
   recorded artifact goes on the ticket and in the PR body. Skip only for
   changes with no runtime behavior (docs, comments) — state the skip.
-- **Codex second opinion — only if Sean says yes.** Ask him at this stage
-  ("Want a Codex review on this diff?"); never run it unprompted — it costs
-  minutes and an external model call. On his yes, run from the worktree:
-  `bash <repo-root>/codex-review-diff.sh (plugin bin) "<one-line ticket
-  summary>"` (dispatch via the `codex-reviewer` agent to keep the transcript
-  out of this session, or run it directly — the script is the single source
-  of truth either way; exit 0 = a valid verdict came back). Then post the
-  review as a ticket comment headed `**Codex (GPT-5.4) review:**` — the
-  cross-model perspective lives on the ticket, not just in the session.
-  Real findings get fixed before the PR; rejected ones get a one-line why
-  in the same comment.
+- **Independent second opinion — only if Sean says yes.** Ask him at this
+  stage ("Want a second opinion on this diff?"); never run it unprompted — it
+  costs minutes. On his yes, spawn a fresh-context Fable reviewer via the
+  Agent tool (`subagent_type: "shelly:code-reviewer"`, `model: "fable"`) given
+  the diff and the ticket summary; size the session effort to the diff first
+  — `medium` for docs/one-liners, `high` for app logic, `xhigh` for anything
+  touching packages/*, a DB migration/RPC/trigger, root config, or a frozen
+  runtime contract. Then post its findings as a ticket comment headed
+  `**Independent review (Fable):**` — the second pass lives on the ticket,
+  not just in the session. Real findings get fixed before the PR; rejected
+  ones get a one-line why in the same comment.
 - Fix findings in the open engineer threads; re-verify only what changed.
 
-## 5. Show it on localhost — Sean looks before anything ships
-
-The gates prove it compiles; they do not prove it looks and behaves right. Sean
-sees it running locally **before** the PR, while a change is still cheap — a
-tweak now costs nothing, the same tweak after merge costs a full prod build.
-
-- Start it from the worktree, in the background:
-  `pnpm --filter <app> run dev` (every app has this script; `/run` covers the
-  awkward launches). The worktree server and the main checkout's fight over the
-  same port — if it's taken, start on a free one and say which.
-- Drive it yourself first (`/run`, or the Chrome tools) so you hand him a
-  working page, not a guess. Then report the **URL plus the exact screen/path**
-  to open, what changed, and what to try.
-- **Stop and wait for his OK.** Fold his feedback in here, on the branch, and
-  re-run only the gates the change touched.
-- **Scope added after a runbook already ran in prod** → write a NEW cumulative
-  `PROD_` file for the delta (never edit the applied one) and keep handlers tolerant
-  of the missing column (`COALESCE`, optional select) until it runs — otherwise
-  Sean's localhost look 500s against prod mid-review (DEV-142 shipped three
-  runbooks for one ticket, 2026-08-26).
-- Nothing to see locally (migration, worker, cron, pure backend)? Say that
-  explicitly and name the real proof you ran instead — never skip his look
-  silently.
-- Kill the dev server before moving on.
-
-## 6. Open the PR — In Review
+## 5. Open the PR — In Review
 
 From the worktree, `/ship hold` (it rebases onto `origin/main`, re-runs the
 gates, pushes, opens the PR). The PR body must include **`Closes DEV-xxx`** so
@@ -184,7 +158,14 @@ merge auto-links, plus the real gate output and any unchecked verify item.
 
 Then `mcp__linear__save_issue({id, state: "In Review"})` and post a comment
 linking the PR. **Stop here and report the PR URL** — Sean reviews before merge.
-A ticket is never Done from an open PR.
+A ticket is never Done from an open PR. The gate is gates green + Actions check
+green + In Review; Sean asks for a local look himself if he wants one.
+
+- **Scope added after a runbook already ran in prod** → write a NEW cumulative
+  `PROD_` file for the delta (never edit the applied one) and keep handlers
+  tolerant of the missing column (`COALESCE`, optional select) until it runs —
+  otherwise the deployed app 500s against prod mid-review (DEV-142 shipped
+  three runbooks for one ticket, 2026-08-26).
 
 **Every acceptance box is tickable today, or says when.** Before the transition,
 walk the unchecked boxes: force each surface that has not happened yet
@@ -193,13 +174,13 @@ with what it is waiting for. A box like "next Sat/Sun" with no annotation leaves
 In Review meaning both "waiting on Sean" and "waiting on the calendar", and the
 calendar ones sit there decaying.
 
-**Release the build team now.** Pane teammates (if any) get a shutdown request
-— never leave a pane idling through the review wait. In-process subagent
+**Release the build team now.** In-process teammates (if any) get a shutdown
+request — never leave one running through the review wait. In-process subagent
 threads need no explicit kill; just stop messaging them. If Sean's PR review
 comes back with fixes, dispatch fresh — a cold respawn with the review comment
 as brief beats a stale thread's drifted context.
 
-## 7. Closeout — only when the PR is merged
+## 6. Closeout — only when the PR is merged
 
 The trigger is Sean merging (or telling you to). Do NOT do this from an open PR.
 

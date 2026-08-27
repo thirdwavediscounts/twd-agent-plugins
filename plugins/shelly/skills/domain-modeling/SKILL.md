@@ -9,7 +9,7 @@ Actively build and sharpen the project's domain model as you design. This is the
 
 ## Where docs go
 
-Repo config wins: if `docs/agents/domain.md` (or a `CONTEXT-MAP.md`) exists, follow its layout for CONTEXT.md and ADRs. In the twd monorepo that means root `CONTEXT-MAP.md` → per-app `apps/<x>/CONTEXT.md` + `apps/<x>/docs/adr/`, created lazily.
+Repo config wins: if `${CLAUDE_PLUGIN_ROOT}/docs/agents/domain.md` (or a `CONTEXT-MAP.md`) exists, follow its layout for CONTEXT.md and ADRs. In the twd monorepo that means root `CONTEXT-MAP.md` → per-app `apps/<x>/CONTEXT.md` + `apps/<x>/docs/adr/`, created lazily.
 
 **Session docs** (decision notes, open questions, the eventual spec) live in the feature's own docs folder, created at the start of the work and appended to as the session proceeds:
 

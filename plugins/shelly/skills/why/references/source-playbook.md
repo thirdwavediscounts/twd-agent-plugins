@@ -13,3 +13,5 @@ The why skill spawns one investigator per reachable evidence category, each read
 Cross-cutting:
 
 - [`incident-postmortem.md`](./sources/incident-postmortem.md). Add this if the target code looks defensive (null checks, retry, timeout, rate limit, feature flag, egress guard, OOM handler).
+
+From a cloud session (claude.ai/code), Bugsink and the VPS journal are not reachable — both go over `ssh`, and cloud has no ssh key. Record as a blind spot and mark any conclusion that leans on them provisional; don't fake the probe.

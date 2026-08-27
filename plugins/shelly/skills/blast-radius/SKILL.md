@@ -38,7 +38,7 @@ Any safety fact you can't get to step 4, say so out loud — don't write it up a
    - The usual invisible couplings: JSON shapes an API returns, wire formats, feature flags, code three hops downstream, pinned library versions.
 4. **Be honest about each risk.** A real chance of happening and a real cost if it does. Keep confirmed risks; list checked-and-cleared separately. Cite real `file:line`; a search that finds nothing is still an answer; never invent a caller or an API.
 5. **Prove the one fact.** Write a script or test that runs the real code, run it, paste what happened. **Falsify it too**: break the input deliberately (wrong cert, wrong id, missing row) and confirm the failure — an assertion that cannot fail is not evidence. If you can't prove it cheaply, mark it unproven. Don't round up.
-6. For a big or wide change, get a second model's read: dispatch the `codex-reviewer` agent on the same question. Different models catch different real bugs.
+6. For a big or wide change, get a second independent read: dispatch a fresh-context Claude Fable reviewer (Agent tool, `general-purpose`, model `fable`) on the same question. Size its effort to the diff — `medium` for docs/one-liners, `high` for app logic, `xhigh` for anything touching packages/*, a DB migration/RPC/trigger, root config, or a frozen runtime contract — and set the session effort accordingly before spawning it. A fresh, uninvested pass catches things the first pass's assumptions hid.
 
 ## What to hand back
 

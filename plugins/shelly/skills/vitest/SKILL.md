@@ -15,12 +15,12 @@ Generic vitest/Testing-Library API is not in this file; use `find-docs` for that
 
 ## Diagnosing a failing run
 
-- **Host Node 26 breaks jsdom `localStorage`.** `Cannot read properties of undefined (reading 'clear')` on `window.localStorage` plus `ExperimentalWarning: localStorage` = environment, not code. Packages want Node 22/24. Run through `.claude/scripts/ci-local.sh` (Node 24 container) or pin host node to 24 before diagnosing anything.
+- **Host Node 26 breaks jsdom `localStorage`.** `Cannot read properties of undefined (reading 'clear')` on `window.localStorage` plus `ExperimentalWarning: localStorage` = environment, not code. Packages want Node 22/24. Run through `${CLAUDE_PLUGIN_ROOT}/bin/ci-local.sh` (Node 24 container) or pin host node to 24 before diagnosing anything.
 - **CI-red / local-green:** re-run the identical commit first. Deterministic → your change; non-deterministic → load (WMA suite: ~9s local, ~500s CI). Then ask which clock ran out (budget vs ordering, above).
 - **Failures in files outside your diff right after a pull:** a new `packages/*` arrived and the workspace symlink doesn't exist yet. `pnpm install` first; read the individual test file's output, not turbo's summary (it truncates the real `ERR_MODULE_NOT_FOUND`).
 - **Never delete or weaken a red test to get green** — a policy test pins a repo guarantee. Replace it only with an equivalent assertion and say so.
 
 ## Gates
 
-- `pnpm --filter <app> run test`; the only merge gate is `.claude/scripts/ci-local.sh` from the main checkout on committed state.
+- `pnpm --filter <app> run test`; the merge gate is the GitHub Actions `verify` job on the PR (`${CLAUDE_PLUGIN_ROOT}/bin/ci-local.sh` is the offline/quota fallback, run from the main checkout on committed state).
 - CI's verify job masks later steps: a red test step hides dep-audit/coverage.

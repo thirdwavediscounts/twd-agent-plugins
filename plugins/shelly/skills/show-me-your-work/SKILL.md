@@ -63,9 +63,9 @@ At the end of the run, before handing back, check the log told the truth. Read b
 
 Fix the log, not the story. If the work diverged from what a row claims, the row is wrong.
 
-## Cross-model review of the trail
+## Independent review of the trail
 
-Before handing back, spawn `shelly:codex-reviewer` — the cross-model lens (OpenAI GPT-5.4) — on the audit trail and the run. Self-review is not a substitute; the point is fresh eyes from outside the model family that did the work. It reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
+Before handing back, spawn a fresh-context Claude Fable reviewer (Agent tool, `subagent_type`: `general-purpose`, `model`: `fable`) on the audit trail and the run. Size its effort to the run — `medium` for docs/one-liners, `high` for app logic, `xhigh` for anything touching packages/*, a DB migration/RPC/trigger, root config, or a frozen runtime contract — and set the session effort accordingly before spawning it. Self-review is not a substitute; the point is fresh eyes — a session with no memory of this run's reasoning. It reads the audit trail and the run's transcript, then flags what the user should pay attention to. Not a redo of the work, a scan for what's suboptimal or risky.
 
 - Decisions logged with weak or absent evidence.
 - Verification steps skipped or claimed without proof in the transcript.
