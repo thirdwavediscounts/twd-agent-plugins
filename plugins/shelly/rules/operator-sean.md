@@ -116,7 +116,7 @@ Never write synthetic rows into prod business tables (`sales`, `products`, `purc
 
 - **Guard hooks ship with the plugin** (`hooks/`): `env-file-guard`, `worktree-branch-guard` (PreToolUse Bash), `git-staleness-check`, `worktree-location-check` (SessionStart), the vitest-skill reminder (Write|Edit), and `operator-rules` (this file, when `SHELLY_OPERATOR=sean`). They fire in cloud sessions too; nothing in `~/.claude/hooks` is load-bearing any more.
 - **CI gate is GitHub Actions on the PR** (`gh pr checks`); `${CLAUDE_PLUGIN_ROOT}/bin/ci-local.sh` only when a run is quota-refused or you are offline, never from cloud. No localhost sign-off step — Sean asks for a local look when he wants one.
-- **Cloud sessions cannot reach** the VPS (ssh), `.env` files, Docker, or a localhost Sean can see. Say so, record the blind spot, keep the conclusion provisional.
+- **Cloud sessions (Sean Dev)** get the VPS key (`ssh ken-ai-agents`), the three `.env` files (Infisical export) and the verify-live creds from `hooks/cloud-materialize.sh` at SessionStart — its one status line says what landed (sizes/counts only). Still unreachable from cloud: Docker, a localhost Sean can see. Say so, record the blind spot, keep the conclusion provisional.
 
 - **Describe a skill only after reading its SKILL.md; invoke the matching skill before starting that kind of work, not from memory.**
 - **Naming a skill in a plan commits you to invoking it.** Hand-rolling it instead silently drops whatever part of its checklist you did not recall (2026-08-25: named `/blast-radius`, hand-rolled it, and never ran its step 6 cross-model pass — which later found four real defects two same-model reviewers had cleared).

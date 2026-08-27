@@ -3,9 +3,26 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/operator-rules.sh" },
-          { "type": "command", "timeout": 15, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/git-staleness-check.sh" },
-          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-location-check.sh" }
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/operator-rules.sh"
+          },
+          {
+            "type": "command",
+            "timeout": 15,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/git-staleness-check.sh"
+          },
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-location-check.sh"
+          },
+          {
+            "type": "command",
+            "timeout": 60,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/cloud-materialize.sh"
+          }
         ]
       }
     ],
@@ -24,8 +41,16 @@
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-branch-guard.sh" },
-          { "type": "command", "timeout": 10, "command": "${CLAUDE_PLUGIN_ROOT}/hooks/env-file-guard.sh" }
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/worktree-branch-guard.sh"
+          },
+          {
+            "type": "command",
+            "timeout": 10,
+            "command": "${CLAUDE_PLUGIN_ROOT}/hooks/env-file-guard.sh"
+          }
         ]
       },
       {
