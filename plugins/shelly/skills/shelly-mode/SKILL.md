@@ -19,6 +19,7 @@ Adapted from pstack's `poteto-mode` (github.com/cursor/plugins), 2026-08-24. Bui
 | Build less | Architecture | Proof | Delegation |
 |---|---|---|---|
 | laziness protocol · subtract before you add · minimize reader load · redesign from first principles · outcome-oriented execution · experience first · exhaust the design space · build the lever · foundational thinking | model the domain · boundary discipline · type-system discipline · make operations idempotent · migrate callers then delete legacy APIs · separate before serializing shared state | prove it works · fix root causes · sequence verifiable units | guard the context window · never block on the human · encode lessons in structure |
+5. **A denied Bash call is a rule, not the user.** With no hook output, dump `permissions.deny`/`ask` from all four settings files and glob-test each against the full command text — heredoc bodies and quoted strings included — before any retry; an explicit go never overrides a deny. Long text (PR bodies, SQL) goes in a file via Write and `--body-file <path>`.
 
 ## Intake
 

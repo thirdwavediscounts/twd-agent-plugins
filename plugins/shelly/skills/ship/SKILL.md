@@ -103,6 +103,9 @@ ci-local.sh <branch sha>
   origin/main...HEAD` shows nothing but `*.md`): no build, test, or lint reads
   them. Anything touching code, config, `package.json`, or the lockfile runs
   the container. When skipping, say so in the PR body.
+- The container may run in the background (main checkout, branch sha) while
+  step 4 pushes and opens the PR; step 5's merge waits for `OVERALL: GREEN`.
+  A red only blocks the merge.
 - A red here with green per-app gates is the environment difference talking —
   believe the container, it matches CI and a clean checkout.
 
@@ -133,9 +136,12 @@ mid-task.
 gh pr merge <N> --merge --delete-branch -t "sean/ <PR title>"
 ```
 
-From a worktree this merges, then fails on its local checkout-main step
-(`fatal: 'main' is already used by worktree at …`). Do not re-run it: confirm with
-`gh pr view <N> --json state,mergeCommit`, then `git push origin --delete <branch>`.
+`gh` merges first, then switches the LOCAL checkout to `main` and deletes the
+local branch. When that local step fails — usually because the branch is checked
+out in a sibling worktree, whichever checkout you run from — gh also skips the
+remote delete. Do not re-run it: confirm with `gh pr view <N> --json
+state,mergeCommit`, then `git ls-remote --heads origin <branch>` and
+`git push origin --delete <branch>` if the ref survived.
 
 Vercel labels each deployment with the first line of the merge commit and
 truncates it early, so GitHub's default (`Merge pull request #454 from
@@ -157,6 +163,11 @@ step for branches that carry no ticket id.
 `ToolSearch "select:mcp__linear__get_issue,mcp__linear__list_issues,mcp__linear__save_issue"`, then:
 
 - `mcp__linear__save_issue({id: "DEV-123", state: "Done"})`.
+- Re-read the ticket after the merge (`get_issue`). Linear's GitHub automation
+  moves it to In Progress when a PR whose branch or body carries the key opens,
+  and again on merge unless the body says `Closes DEV-n`. A ticket that was
+  already Done (closeout/docs PR) needs Done re-asserted once, after the merge
+  — or keep the key out of the branch name.
 - Close any still-open sub-issues (`mcp__linear__list_issues({parentId})`) that
   this PR resolved; leave genuinely separate follow-ups open.
 - If the ticket has a `## Verify (post-deploy)` checklist with items that a merge
@@ -182,8 +193,9 @@ git worktree remove ../twd-worktrees/<name>    # if the branch had one
 git worktree prune
 ```
 
-The remote branch is already gone via `--delete-branch`; if not,
-`git push origin --delete <branch>`.
+`--delete-branch` removes the remote only when its local cleanup succeeded
+(§5): check `git ls-remote --heads origin <branch>` and delete by hand if the
+ref survived.
 
 ## 7. Report
 
