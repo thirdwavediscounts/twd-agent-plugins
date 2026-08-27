@@ -74,8 +74,8 @@ React to teammate messages; between them, hold a light loop:
 - **Merge queue is serial.** One merge turn at a time. Grant a turn only when
   no other teammate is mid-merge; after any merge to `main`, message every
   open teammate: rebase onto latest `origin/main` before your own merge
-  (stale-base deploys are the 2026-08-11 incident — the rebase is mandatory,
-  `deploy.sh`'s guard is only the backstop).
+  (a stale, unrebased branch risks a bad merge; prod autodeploys from `main`,
+  so the rebase before merge is mandatory — cf. the 2026-08-11 incident).
 - **On a ticket reaching Done in Linear** (verify with `get_issue`, don't
   trust the message alone): recompute the ready set, dispatch newly unblocked
   tickets into free slots. Also `get_issue` the **parent** after every merge: a
