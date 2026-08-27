@@ -92,10 +92,20 @@ and use the smallest unit — one CSV, not the 22-file ZIP.
 ## 4. Drive
 
 Playwright, launching a **clean** browser each run and injecting the saved
-session — `chromium.launch({ proxy: process.env.HTTPS_PROXY ? { server:
-process.env.HTTPS_PROXY } : undefined })` (cloud sessions sit behind a proxy
-Chromium ignores unless told; `ERR_CONNECTION_RESET` on every `goto` is that)
-→ `newContext({ storageState, recordVideo: { dir, size } })` → `addInitScript` to set the staging switch before the app's JS runs
+session — `chromium.launch({ proxy })` → `newContext({ storageState,
+ignoreHTTPSErrors: true, recordVideo: { dir, size } })`, where `proxy` is
+built from the cloud proxy URL, credentials split out (Chromium ignores
+`user:pass@` inside `server`; `ERR_CONNECTION_RESET` on every `goto` while
+`curl` works is exactly that — DEV-165):
+
+```js
+const u = process.env.HTTPS_PROXY && new URL(process.env.HTTPS_PROXY);
+const proxy = u ? { server: `${u.protocol}//${u.host}`,
+  username: decodeURIComponent(u.username) || undefined,
+  password: decodeURIComponent(u.password) || undefined } : undefined;
+```
+
+Locally `HTTPS_PROXY` is unset and `proxy` is `undefined` → `addInitScript` to set the staging switch before the app's JS runs
 → `goto` → `setInputFiles` → the real write path (click **Import & Start
 Analysis** twice: first mounts the preview, second writes). Record video on
 every run: `recordVideo` finalizes on `context.close()`, and `page.video().path()`
