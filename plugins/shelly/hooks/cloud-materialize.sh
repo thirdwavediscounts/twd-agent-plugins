@@ -8,6 +8,21 @@ set -u
 [ -n "${ARGUS_SSH_KEY:-}${INFISICAL_CLIENT_ID:-}${VERIFY_LIVE_CREDS:-}" ] || exit 0
 out=()
 
+# Git author: cloud commits otherwise default to the base image's
+# `Claude <noreply@anthropic.com>`, which Vercel's team-author gate rejects on
+# merge. The setup script cannot fix this — it runs as root, writing
+# /root/.gitconfig, while the session commits as user `user` reading
+# ~/.gitconfig. This hook runs as the session user, so set it here. Only stamp
+# when the identity is unset or the Anthropic default, never over a real one.
+cur_email=$(git config --global user.email 2>/dev/null || true)
+case "$cur_email" in
+  ""|*@anthropic.com|*noreply*)
+    git config --global user.name "ThirdWaveDiscounts"
+    git config --global user.email "claude@thirdwavediscounts.com"
+    out+=("git-author $(git config --global user.email)")
+    ;;
+esac
+
 if [ -n "${ARGUS_SSH_KEY:-}" ]; then
   mkdir -p ~/.ssh && chmod 700 ~/.ssh
   printf '%s\n' "$ARGUS_SSH_KEY" > ~/.ssh/argus && chmod 600 ~/.ssh/argus

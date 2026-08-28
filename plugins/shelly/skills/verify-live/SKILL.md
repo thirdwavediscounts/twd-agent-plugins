@@ -92,7 +92,13 @@ and use the smallest unit — one CSV, not the 22-file ZIP.
 ## 4. Drive
 
 Playwright, launching a **clean** browser each run and injecting the saved
-session — `chromium.launch({ proxy })` → `newContext({ storageState,
+session — `chromium.launch({ proxy, args: process.env.HTTPS_PROXY ?
+["--disable-quic", "--disable-features=PostQuantumKyber"] : [] })` (cloud only:
+the security proxy resets a browser TLS handshake *before* cert validation, so
+`ignoreHTTPSErrors` cannot help; these args shrink Chromium's ClientHello and
+drop QUIC, the one plausible mitigation — if `goto` still resets, the browser
+drive is LOCAL-ONLY, run the doctor + DB/API half from cloud and drive the
+browser on the Mac) → `newContext({ storageState,
 ignoreHTTPSErrors: true, recordVideo: { dir, size } })`, where `proxy` is
 built from the cloud proxy URL, credentials split out (Chromium ignores
 `user:pass@` inside `server`; `ERR_CONNECTION_RESET` on every `goto` while
