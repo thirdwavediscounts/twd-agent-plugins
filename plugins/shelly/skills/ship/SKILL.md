@@ -149,11 +149,12 @@ gh pr merge <N> --merge --delete-branch -t "sean/ <PR title>"
 ```
 
 `gh` merges first, then switches the LOCAL checkout to `main` and deletes the
-local branch. When that local step fails — usually because the branch is checked
-out in a sibling worktree, whichever checkout you run from — gh also skips the
-remote delete. Do not re-run it: confirm with `gh pr view <N> --json
+local branch. **From a `/work` worktree that local step always fails**
+(`fatal: 'main' is already used by worktree at <shared checkout>`) and gh then
+skips the remote delete, so the next two commands are part of the step there,
+not a contingency. Do not re-run the merge: confirm with `gh pr view <N> --json
 state,mergeCommit`, then `git ls-remote --heads origin <branch>` and
-`git push origin --delete <branch>` if the ref survived.
+`git push origin --delete <branch>` while the ref survives.
 
 Vercel labels each deployment with the first line of the merge commit and
 truncates it early, so GitHub's default (`Merge pull request #454 from

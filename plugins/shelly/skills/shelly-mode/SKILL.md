@@ -24,7 +24,7 @@ Adapted from pstack's `poteto-mode` (github.com/cursor/plugins), 2026-08-24. Bui
 ## Intake
 
 **`DEV-n`** → `mcp__linear__get_issue` (with relations) + `list_comments`; route on state and content, not title:
-- Triage → `/shelly:triage` for that ticket. **A ticket whose description already carries a verified root cause or acceptance criteria is Ready-for-Agent in substance — say so and promote it (one Linear write) before building, never build from Triage silently.** An agent-filed ticket routinely lands here fully formed; spending a workflow on one the board still calls unaccepted is the cost this prevents.
+- Triage → `/shelly:triage` for that ticket. **A ticket whose description already carries a verified root cause or acceptance criteria is Ready-for-Agent in substance — say so and promote it (one Linear write) before building, never build from Triage silently.** An agent-filed ticket routinely lands here fully formed; spending a workflow on one the board still calls unaccepted is the cost this prevents. **A spec that lives in an attachment you cannot read (expired Linear image, Slack screenshot) is not fully formed:** ask Sean for it — one question — or write the UX boxes as `provisional` and leave them unticked until he or the requester has clicked the page (DEV-167: criteria authored from code, six boxes ticked, four product rounds followed).
 - Backlog / Todo → not ready. Say so; offer to promote it or run Investigation first.
 - Ready for Agent, label Bug, no verified root cause in the description → `/investigate`, then stop; building is a second invocation.
 - Ready for Agent with a root cause or acceptance criteria in the description (reference-doc comments are not a plan; the description is) → `/shelly:work DEV-n`, one ticket per session.
