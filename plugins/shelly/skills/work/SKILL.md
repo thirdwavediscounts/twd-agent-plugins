@@ -15,6 +15,36 @@ to route around. Never weaken a test or skip a gate to get green.
 Load the Linear tools once, up front:
 `ToolSearch "select:mcp__linear__get_issue,mcp__linear__list_issues,mcp__linear__save_issue,mcp__linear__save_comment,mcp__linear__list_issue_statuses"`
 
+## Slack evidence thread (autonomous cloud runs)
+
+When `SLACK_TICKET_CHANNEL` is set (the Sean Dev cloud env), each transition
+below posts to **one Slack thread per ticket**, so the run is watchable with
+evidence. The helper is a silent no-op when that env is unset, so local runs are
+unaffected. Never gate work on it and never let a Slack failure stop the
+pipeline — fire it and move on.
+
+Post with (auto-creates the thread on the first call, threads every later one):
+`node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs" post DEV-xxx <step> "<text>" [--file <webm>]`
+
+| transition | `<step>` | when |
+|---|---|---|
+| run start | `start` | §2, right after In Progress (creates the thread) |
+| triaged | `triage` | if `/triage` ran first — its verdict |
+| built | `build` | §4, implementation complete |
+| verified | `verify` | §4, after gates + `verify-work` pass |
+| live proof | `verify-live` | the recorded `.webm`, with `--file` |
+| PR opened | `pr` | §5, after In Review + PR |
+| checks green | `ci` | §5, after Actions pass |
+| merged | `merged` | §6, after merge |
+| blocked | `blocked` | any red gate — post what failed, then stop |
+
+**Auto-merge — this pipeline only.** §5 normally stops for Sean. When
+`SHELLY_AUTO_MERGE=1` is *also* set (Sean pre-authorized it for autonomous cloud
+runs), §5 does not stop: poll `gh pr checks <PR> --watch`, post `ci` on green (or
+`blocked` + stop on red), then run §6 closeout and post `merged`. Flag unset →
+the default holds: stop at the PR, Sean merges. Auto-merge still requires every
+gate + Actions green first; a red gate is never routed around.
+
 ## 0. Refuse the wrong input
 
 - **Exactly one** `DEV-xxx`. Zero or more than one → stop and ask which.
@@ -79,6 +109,9 @@ EnterWorktree({ path: "<absolute worktree path>" })
   existing one with `EnterWorktree({ path: "<absolute worktree path>" })`.
 
 Then `mcp__linear__save_issue({id, state: "In Progress", assignee: <me>})`.
+
+Slack: `… ticket-slack.mjs post DEV-xxx start "<one-line ticket title>"` — opens
+the thread (no-op when unconfigured).
 
 ## 3. Build — the plan is the brief
 
@@ -155,6 +188,10 @@ proof the fix works. A fix without a repro is a guess with a diff.
   not just in the session. Real findings get fixed before the PR; rejected
   ones get a one-line why in the same comment.
 - Fix findings in the open engineer threads; re-verify only what changed.
+- Slack: after the build lands post `build "<what shipped, N files>"`; after the
+  gates + `verify-work` pass post `verify "<gate results>"`; the `verify-work`
+  recording posts as `verify-live "<claim>" --file <webm>`. Any red gate →
+  `blocked "<what failed>"`, then stop (do not proceed to §5).
 - **UI ticket from a requester (Cedric, Jake): offer the local run before
   `/ship hold`.** Code-review green is not product green; the gate is someone
   who uses the page clicking it. Launch recipe: memory
@@ -167,9 +204,18 @@ gates, pushes, opens the PR). The PR body must include **`Closes DEV-xxx`** so
 merge auto-links, plus the real gate output and any unchecked verify item.
 
 Then `mcp__linear__save_issue({id, state: "In Review"})` and post a comment
-linking the PR. **Stop here and report the PR URL** — Sean reviews before merge.
-A ticket is never Done from an open PR. The gate is gates green + Actions check
-green + In Review; Sean asks for a local look himself if he wants one.
+linking the PR. Slack: `… post DEV-xxx pr "PR #N opened — <url>"`.
+
+**Default (`SHELLY_AUTO_MERGE` unset): stop here and report the PR URL** — Sean
+reviews before merge. A ticket is never Done from an open PR. The gate is gates
+green + Actions check green + In Review; Sean asks for a local look himself if
+he wants one.
+
+**Autonomous (`SHELLY_AUTO_MERGE=1`): do not stop.** Wait for Actions:
+`gh pr checks <PR> --watch`. On green → Slack `post DEV-xxx ci "checks passed"`,
+then go straight to §6 (merge + `merged`). On red → Slack
+`post DEV-xxx blocked "<failing check>"`, leave the PR In Review, and stop with
+the failure — never merge or route around a red check.
 
 - **Scope added after a runbook already ran in prod** → write a NEW cumulative
   `PROD_` file for the delta (never edit the applied one) and keep handlers
@@ -198,7 +244,9 @@ as brief beats a stale thread's drifted context.
 
 ## 6. Closeout — only when the PR is merged
 
-The trigger is Sean merging (or telling you to). Do NOT do this from an open PR.
+The trigger is Sean merging (or telling you to) — or, under `SHELLY_AUTO_MERGE=1`,
+Actions going green in §5. Do NOT do this from an open PR with checks unfinished
+or red.
 
 1. `/ship` (no `hold`) from the worktree — merges with the Vercel-safe
    `sean/ <title>` subject and deletes the remote branch. When it reaches its
@@ -209,6 +257,7 @@ The trigger is Sean merging (or telling you to). Do NOT do this from an open PR.
    ../twd-worktrees/<name>`) and deletes the branch.
 2. `mcp__linear__save_issue({id, state: "Done"})` — this is the **only** place
    the ticket goes Done. Close any still-open sub-issues that the PR resolved.
+   Slack: `… post DEV-xxx merged "merged to main — <sha>, DEV-xxx Done"`.
 3. **Project status update.** If the ticket belongs to a Linear project,
    post one (`save_status_update`, type `project`): what just shipped (PR #),
    what that leaves in review / up next in this project. The project page must

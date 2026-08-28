@@ -100,6 +100,10 @@ a lone verifier is the same bias once removed.
   after the claim.
 - Attach the recording to the Linear ticket (attachment upload tools) and link
   it in the PR body beside the gate output.
+- Slack (when `SLACK_TICKET_CHANNEL` is set, e.g. an autonomous `/work` run):
+  post the recording into the ticket thread —
+  `node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs" post DEV-xxx verify-live "<claim> — live-ui verified" --file <path-to.webm>`.
+  No-op when unset; a Slack failure never blocks the verdict.
 - Residue: `git status --short` matches the Step 2 snapshot, the dev server is
   killed, and the evidence directory still holds every cited artifact — check
   it at its named location, don't assume.
