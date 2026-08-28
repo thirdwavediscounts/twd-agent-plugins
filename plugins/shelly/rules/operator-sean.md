@@ -69,6 +69,9 @@ Report extremely concisely, sacrificing grammar for concision — as if teaching
 - **File paths: plain absolute `path:1` bullets** — never code-fenced, never `~`- or repo-relative (Sean CMD+clicks them into VS Code). Point at the checkout where the file exists right now (worktree-aware); say where it lands after merge.
 - **Commands for Sean (`!` lines): one short command per line, one action each.** A wrapped long line executes its remainder as a separate command (2026-08-14: a wrapped ssh line ran a prod deploy script). Never leave an executable path near a line's end; split read-only checks from mutations; `cd` first to shorten paths.
 - **Purchase orders: report `po_number` ("PO #337"), never the row id.** Join `purchase_orders` before replying; id only alongside when a query needs reproducing.
+- **Use clear subject/verb/object constructions.** Do not use cleft sentences, contrastive appositives, appended glosses, or trailing clauses.
+- **Assume Sean may edit documents himself, especially markdown documents.**
+- **Markdown documents must stand alone.** Do not reference conversations or threads a reader would not know about.
 
 ## Evidence-first debugging
 
