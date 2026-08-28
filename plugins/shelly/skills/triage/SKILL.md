@@ -94,6 +94,11 @@ For Ready for Human, add: **Why a human** — the specific reason it can't be de
 comment. In **auto** mode, do this per ticket and log the move. In **interactive**
 mode, present all recommendations first, act only on Sean's go-ahead.
 
+When triage runs as the first step of an autonomous `/work` on a specific ticket
+(`SLACK_TICKET_CHANNEL` set), reply the verdict into that ticket's Slack thread —
+`node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs" post DEV-xxx triage "<verdict + new status>"`
+(auto-creates the thread if it runs before §2). No-op when unset.
+
 ## Report
 
 Counts moved to each status, anything left in `Triage` and why, and any ticket

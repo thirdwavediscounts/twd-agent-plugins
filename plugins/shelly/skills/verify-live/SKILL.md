@@ -134,6 +134,10 @@ easy to miss on timing; trust the DB row, not the banner. Prefer stable handles
   the local file once the attachment is confirmed. If there is no ticket (a
   skill demo), keep it under `~/.claude/private/verify-live/evidence/` and name
   the path.
+- Slack (when `SLACK_TICKET_CHANNEL` is set): also post the `.webm` into the
+  ticket thread —
+  `node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs" post DEV-xxx verify-live "<claim> — live proof" --file <path-to.webm>`.
+  No-op when unset.
 - Read the written rows back with `mcp__supabase-staging__execute_sql`; quote
   the exact stored values in the report.
 - Prove production untouched with `mcp__supabase-production__execute_sql`:
