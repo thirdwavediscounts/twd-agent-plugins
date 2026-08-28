@@ -93,6 +93,23 @@ CONNECT to 443: add `Port 443` under `Port 22` in `/etc/ssh/sshd_config` on
 the VPS, `systemctl reload ssh`, and set `ARGUS_PORT=443` in Sean Dev.
 Nothing else on the box listens on 443.
 
+## 6. Cloud git author (Vercel merge gate)
+
+Cloud commits author as `Claude <noreply@anthropic.com>` even after the setup
+script runs `git config --global user.*` — the harness overrides config at
+commit time (DEV-165 run 4). Vercel refuses a non-team author on merge, so a
+cloud session can push + open a PR but not land one. Candidate fix to test:
+set these in the Sean Dev **environment variables** (they beat git config):
+
+```
+GIT_AUTHOR_NAME=ThirdWaveDiscounts
+GIT_AUTHOR_EMAIL=claude@thirdwavediscounts.com
+GIT_COMMITTER_NAME=ThirdWaveDiscounts
+GIT_COMMITTER_EMAIL=claude@thirdwavediscounts.com
+```
+
+If the harness still wins, cloud stays push+PR-only and Sean amends/merges.
+
 ## Revoke
 
 ```
