@@ -93,12 +93,13 @@ and use the smallest unit — one CSV, not the 22-file ZIP.
 
 Playwright, launching a **clean** browser each run and injecting the saved
 session — `chromium.launch({ proxy, args: process.env.HTTPS_PROXY ?
-["--disable-quic", "--disable-features=PostQuantumKyber"] : [] })` (cloud only:
-the security proxy resets a browser TLS handshake *before* cert validation, so
-`ignoreHTTPSErrors` cannot help; these args shrink Chromium's ClientHello and
-drop QUIC, the one plausible mitigation — if `goto` still resets, the browser
-drive is LOCAL-ONLY, run the doctor + DB/API half from cloud and drive the
-browser on the Mac) → `newContext({ storageState,
+["--ssl-version-max=tls1.2"] : [] })` (cloud only: the managed egress proxy
+re-terminates TLS and REJECTS Chromium's TLS 1.3 ClientHello — every `https://`
+goto is `ERR_CONNECTION_RESET` while curl/openssl, which negotiate down, work.
+Capping Chromium at TLS 1.2 clears it: example.com and the deployed app both
+load 200 from cloud, PROVEN DEV-165. `ignoreHTTPSErrors` is unrelated (not a
+cert error). Locally `HTTPS_PROXY` is unset so no flag is added) →
+`newContext({ storageState,
 ignoreHTTPSErrors: true, recordVideo: { dir, size } })`, where `proxy` is
 built from the cloud proxy URL, credentials split out (Chromium ignores
 `user:pass@` inside `server`; `ERR_CONNECTION_RESET` on every `goto` while
@@ -111,7 +112,7 @@ const proxy = u ? { server: `${u.protocol}//${u.host}`,
   password: decodeURIComponent(u.password) || undefined } : undefined;
 ```
 
-Locally `HTTPS_PROXY` is unset and `proxy` is `undefined`. Then `addInitScript` to set the staging switch before the app's JS runs
+Then `addInitScript` to set the staging switch before the app's JS runs
 → `goto` → `setInputFiles` → the real write path (click **Import & Start
 Analysis** twice: first mounts the preview, second writes). Record video on
 every run: `recordVideo` finalizes on `context.close()`, and `page.video().path()`
