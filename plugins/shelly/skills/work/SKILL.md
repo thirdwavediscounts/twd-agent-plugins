@@ -115,6 +115,12 @@ Then orchestrate, scoped to this ticket:
 Adapt to the ticket — a one-line fix does not need the full team. State any
 stage you skip and why. Never skip one just to save time.
 
+**Every state-changing action names its visible effect in the brief.** "Row
+leaves the list", "row greys", "toast" — pick one and write it down before the
+first edit; inheriting the existing semantics silently is a decision Sean did
+not make (DEV-167: "mark analyzed" inherited "drain the queue", read as
+nothing happening, cost two rounds).
+
 **Bug tickets: no fix until a red-capable repro command has actually run.**
 Before the first fix edit, run a command that reproduces the failure (failing
 test, curl script, tsx against staging — the `diagnosing-bugs` skill ranks the
@@ -149,6 +155,10 @@ proof the fix works. A fix without a repro is a guess with a diff.
   not just in the session. Real findings get fixed before the PR; rejected
   ones get a one-line why in the same comment.
 - Fix findings in the open engineer threads; re-verify only what changed.
+- **UI ticket from a requester (Cedric, Jake): offer the local run before
+  `/ship hold`.** Code-review green is not product green; the gate is someone
+  who uses the page clicking it. Launch recipe: memory
+  `worktree-session-mechanics` → "Dev server in a worktree".
 
 ## 5. Open the PR — In Review
 
@@ -166,6 +176,12 @@ green + In Review; Sean asks for a local look himself if he wants one.
   tolerant of the missing column (`COALESCE`, optional select) until it runs —
   otherwise the deployed app 500s against prod mid-review (DEV-142 shipped
   three runbooks for one ticket, 2026-08-26).
+
+**The boxes describe what shipped.** When review rounds changed the product,
+rewrite the acceptance criteria to the shipped behaviour before ticking — a
+ticked box describing a control that no longer exists is what the next reader
+trusts (DEV-167 shipped a floating bar under boxes that still said "toolbar
+button, disabled at 0").
 
 **Every acceptance box is tickable today, or says when.** Before the transition,
 walk the unchecked boxes: force each surface that has not happened yet
