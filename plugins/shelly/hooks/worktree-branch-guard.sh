@@ -28,6 +28,15 @@ payload=$(cat)
 cmd=$(printf '%s' "$payload" | jq -r '.tool_input.command // empty' 2>/dev/null) || exit 0
 [ -n "$cmd" ] || exit 0
 
+# Cloud: each session is its own container with its own checkout — no other
+# session shares it, so there's no race, and a worktree would only be a second
+# deps-less checkout. Branch in the checkout directly. A cloud session is
+# detectable by the mandatory egress proxy (HTTPS_PROXY), which is never set
+# locally; SHELLY_CLOUD=1 is an optional manual override.
+if [ -n "${HTTPS_PROXY:-}" ] || [ -n "${https_proxy:-}" ] || [ "${SHELLY_CLOUD:-}" = "1" ]; then
+  exit 0
+fi
+
 cwd=$(printf '%s' "$payload" | jq -r '.cwd // empty' 2>/dev/null)
 [ -n "$cwd" ] && [ -d "$cwd" ] && cd "$cwd" 2>/dev/null
 
