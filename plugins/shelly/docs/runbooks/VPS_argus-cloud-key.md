@@ -83,11 +83,14 @@ covers it) into the session and follow the engine's own deploy notes
 (memory `argus-deploy-source-root-vs-opt`: cardscout = `/opt` releases,
 ebay-scraper + workflows = `/root`).
 
-## 5. If port 22 egress is blocked from the cloud
+## 5. Cloud egress is an HTTP CONNECT proxy — no raw TCP
 
-Unverified until the first cloud test session. If `ssh ken-ai-agents` times
-out there, add `Port 443` under `Port 22` in `/etc/ssh/sshd_config` on the
-VPS, `systemctl reload ssh`, and add `Port 443` to the cloud `Host` block.
+DEV-165 run 3 (2026-08-27): port 22 times out, port 443 "Connection closed";
+curl works. The hook therefore writes `ProxyCommand nc -X connect -x
+<HTTPS_PROXY host:port> %h %p` into the `Host` block whenever `HTTPS_PROXY`
+is set (setup script installs `netcat-openbsd`). If the proxy only allows
+CONNECT to 443: add `Port 443` under `Port 22` in `/etc/ssh/sshd_config` on
+the VPS, `systemctl reload ssh`, and set `ARGUS_PORT=443` in Sean Dev.
 Nothing else on the box listens on 443.
 
 ## Revoke

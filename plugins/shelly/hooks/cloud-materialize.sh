@@ -13,7 +13,15 @@ if [ -n "${ARGUS_SSH_KEY:-}" ]; then
   printf '%s\n' "$ARGUS_SSH_KEY" > ~/.ssh/argus && chmod 600 ~/.ssh/argus
   [ -n "${ARGUS_KNOWN_HOST:-}" ] && ! grep -qF "$ARGUS_KNOWN_HOST" ~/.ssh/known_hosts 2>/dev/null \
     && printf '%s\n' "$ARGUS_KNOWN_HOST" >> ~/.ssh/known_hosts
-  printf 'Host ken-ai-agents\n  HostName %s\n  User root\n  IdentityFile ~/.ssh/argus\n  IdentitiesOnly yes\n' "${ARGUS_HOST:-204.168.143.179}" > ~/.ssh/config
+  {
+    printf 'Host ken-ai-agents\n  HostName %s\n  User root\n  Port %s\n  IdentityFile ~/.ssh/argus\n  IdentitiesOnly yes\n' "${ARGUS_HOST:-204.168.143.179}" "${ARGUS_PORT:-22}"
+    # Cloud egress is an HTTP CONNECT proxy only; raw TCP times out. Tunnel ssh
+    # through it (needs netcat-openbsd from the setup script).
+    if [ -n "${HTTPS_PROXY:-}" ]; then
+      px="${HTTPS_PROXY#http://}"; px="${px#https://}"; px="${px%/}"
+      printf '  ProxyCommand nc -X connect -x %s %%h %%p\n' "$px"
+    fi
+  } > ~/.ssh/config
   n=$(wc -c < ~/.ssh/argus | tr -d " "); [ "$n" -gt 100 ] && out+=("ssh key ${n}B") || out+=("ssh key EMPTY(${n}B)")
 fi
 
@@ -44,6 +52,12 @@ if [ -n "${INFISICAL_CLIENT_ID:-}" ]; then
     fi
     unset tok
   fi
+fi
+
+# Keep the plugin current: the setup script's install is snapshot-cached, so
+# refresh in the background for the NEXT session (never blocks this one).
+if command -v claude >/dev/null 2>&1; then
+  (claude plugin marketplace update twd >/dev/null 2>&1 && claude plugin update shelly@twd >/dev/null 2>&1) &
 fi
 
 printf 'cloud-materialize: %s\n' "$(IFS="|"; echo "${out[*]}" | sed "s#|#; #g")"
