@@ -92,8 +92,12 @@ and use the smallest unit — one CSV, not the 22-file ZIP.
 ## 4. Drive
 
 Playwright, launching a **clean** browser each run and injecting the saved
-session — `chromium.launch({ proxy, args: process.env.HTTPS_PROXY ?
-["--ssl-version-max=tls1.2"] : [] })` (cloud only: the managed egress proxy
+session — `chromium.launch({ channel: "chromium", proxy, args:
+process.env.HTTPS_PROXY ? ["--ssl-version-max=tls1.2"] : [] })`. **`channel:
+"chromium"` is REQUIRED in cloud:** Playwright defaults to the
+`chrome-headless-shell` binary, which silently IGNORES `--ssl-version-max`, so
+every `goto` still resets even with the flag (DEV-165) — the full Chromium
+binary honors it. (cloud only: the managed egress proxy
 re-terminates TLS and REJECTS Chromium's TLS 1.3 ClientHello — every `https://`
 goto is `ERR_CONNECTION_RESET` while curl/openssl, which negotiate down, work.
 Capping Chromium at TLS 1.2 clears it: example.com and the deployed app both
