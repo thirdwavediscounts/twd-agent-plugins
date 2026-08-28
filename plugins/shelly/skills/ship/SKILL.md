@@ -36,6 +36,13 @@ everyone else's merged work.
 
 After rebasing, the count must read `0` before anything is pushed.
 
+When `main` rewrote the same file your commits touch (every commit conflicts
+in the same hunks), a commit-by-commit rebase just conflicts N times: `git
+rebase --abort`, `git reset --hard origin/main`, re-apply the change as ONE
+commit, re-run the gates, and push `--force-with-lease` — allowed on a `sean/`
+PR branch, never on `main`. (2026-08-28, #732: two commits vs DEV-167's page
+rework.)
+
 ## 2. Identify the owning app
 
 Every changed file should live under one `apps/<x>` (or one `packages/<x>`):
@@ -107,6 +114,10 @@ lockfile drift, cross-app breakage).
 gh pr checks <N> --watch
 ```
 
+Right after a push (or force-push) `--watch` can exit 0 with "no checks
+reported on the branch" — that is not green. Wait ~20 s and re-run until at
+least one check is listed, then watch.
+
 Green required before step 5. **Skip allowed only for markdown-only diffs**
 (`git diff --name-only origin/main...HEAD` shows nothing but `*.md`): no
 build, test, or lint reads them. Anything touching code, config,
@@ -143,6 +154,12 @@ ${CLAUDE_PLUGIN_ROOT}/bin/ci-local.sh <branch sha>
   believe the container, it matches CI and a clean checkout.
 
 ## 5. Merge — set the subject explicitly
+
+Re-run step 1's sync check first: `git fetch origin && git rev-list --count
+HEAD..origin/main`. CI takes ~7 min and other sessions push continuously, so
+the `0` from before the PR is stale by now; nonzero → rebase, re-gate, push,
+CI again, THEN merge. (2026-08-28, #732: 9 commits landed during the run;
+`gh pr merge` failed with "Pull Request has merge conflicts".)
 
 ```
 gh pr merge <N> --merge --delete-branch -t "sean/ <PR title>"
