@@ -71,8 +71,21 @@ work genuinely needs a second app, stop and ask.
 
 ## 2. Worktree — create it and move in, before any work
 
-Project instruction: **this session works in a worktree.** Do it now — before
-reading app source, dispatching an agent, or editing a line, not after.
+**Cloud session: no worktree.** (You're in cloud when `HTTPS_PROXY` is set — the
+egress proxy, never present locally; `printenv HTTPS_PROXY` to check.) The session
+is its own container with its own checkout — nothing else shares it, so a worktree
+buys no isolation and, worse, would be a fresh checkout with no `node_modules` and
+no `.env` (those live in the main checkout), breaking `verify-work`'s dev-server
+drive. Instead branch in place:
+```
+git fetch origin && git checkout -b sean/<ticket>-<slug> origin/main
+```
+Skip `EnterWorktree`; the cwd is already the checkout with deps + env. Then jump
+to the In Progress save below. Everything else in §2 is the local path only.
+
+Project instruction (local, shared checkout): **this session works in a
+worktree.** Do it now — before reading app source, dispatching an agent, or
+editing a line, not after.
 
 Update the base ref first, then create a **sibling worktree** off fresh
 `origin/main` and move the session into it:
@@ -251,11 +264,13 @@ The trigger is Sean merging (or telling you to) — or, under `SHELLY_AUTO_MERGE
 Actions going green in §5. Do NOT do this from an open PR with checks unfinished
 or red.
 
-1. `/ship` (no `hold`) from the worktree — merges with the Vercel-safe
-   `sean/ <title>` subject and deletes the remote branch. When it reaches its
-   **cleanup** step, call `ExitWorktree({ action: "keep" })` first: `git checkout
+1. `/ship` (no `hold`) — merges with the Vercel-safe `sean/ <title>` subject and
+   deletes the remote branch. **Cloud (`HTTPS_PROXY` set):** no worktree to unwind
+   — after the merge just `git checkout main && git pull` in the checkout; skip
+   `ExitWorktree` and `git worktree remove`. **Local:** when `/ship` reaches its
+   **cleanup** step, call `ExitWorktree({ action: "keep" })` first — `git checkout
    main` and `git worktree remove` cannot run from inside the worktree they are
-   deleting. Use `keep` — a path-entered worktree can only be exited with `keep`;
+   deleting; use `keep` (a path-entered worktree can only be exited with `keep`);
    `/ship` then removes the sibling worktree (`git worktree remove
    ../twd-worktrees/<name>`) and deletes the branch. (Autonomous runs: the `ci`
    + `merged` Slack posts fire automatically from the `slack-pipeline-merge`
