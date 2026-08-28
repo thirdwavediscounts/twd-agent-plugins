@@ -26,16 +26,21 @@ const TOKEN = process.env.SLACK_TICKET_BOT_TOKEN;
 const CHANNEL = process.env.SLACK_TICKET_CHANNEL;
 const DRY = process.env.DRY === "1";
 
+// Cat avatars: each step posts as its own bot name with a pinned clean cat photo
+// (cataas.com, a public cat-image API). Slack fetches + caches the icon_url per
+// URL, so each step keeps its consistent cat. Swap an id below to change a cat.
+const cat = (id) => `https://cataas.com/cat/${id}`;
+
 const IDENTITY = {
-  start: { username: "orchestrate", icon_emoji: ":brain:" },
-  triage: { username: "triage", icon_emoji: ":mag:" },
-  build: { username: "fix", icon_emoji: ":hammer:" },
-  verify: { username: "verify", icon_emoji: ":microscope:" },
-  "verify-live": { username: "verify-live", icon_emoji: ":movie_camera:" },
-  pr: { username: "open-pr", icon_emoji: ":twisted_rightwards_arrows:" },
-  ci: { username: "ci", icon_emoji: ":large_green_circle:" },
-  blocked: { username: "blocked", icon_emoji: ":octagonal_sign:" },
-  merged: { username: "ship", icon_emoji: ":rocket:" },
+  start: { username: "orchestrate", icon_url: cat("G2gU9xo3HUvi70LL") },
+  triage: { username: "triage", icon_url: cat("CyHhy2hqLNBoraUt") },
+  build: { username: "fix", icon_url: cat("C5Ddbc1ilh45jiAk") },
+  verify: { username: "verify", icon_url: cat("0M0Lo3dsYft79xNd") },
+  "verify-live": { username: "verify-live", icon_url: cat("DDnc0SqHG6mI24cM") },
+  pr: { username: "open-pr", icon_url: cat("7U01QMCY91SvOpyk") },
+  ci: { username: "ci", icon_url: cat("FAkFJCfYbZOF8aDI") },
+  blocked: { username: "blocked", icon_url: cat("8Tx4SPtXlW9TR5Lm") },
+  merged: { username: "ship", icon_url: cat("7aqq2nCe7IiZEKjJ") },
 };
 const ROOT_STEPS = new Set(["start", "anchor"]);
 
@@ -163,7 +168,7 @@ async function main() {
       process.stdout.write(existing + "\n");
       return;
     }
-    const ts = await postMessage({ step: "start", text: `:brain: *${ticket}* — ${title || "starting"}` });
+    const ts = await postMessage({ step: "start", text: `*${ticket}* — ${title || "starting"}` });
     process.stdout.write(ts + "\n");
     return;
   }
@@ -176,8 +181,10 @@ async function main() {
 
     let thread_ts = await findThreadTs(ticket);
     if (!thread_ts) {
-      // No anchor yet — create one so no event is ever orphaned.
-      thread_ts = await postMessage({ step: "start", text: `:brain: *${ticket}* — run started` });
+      // No anchor yet — create one so no event is ever orphaned. A root step
+      // (start/anchor) uses its own text as the title; otherwise a generic one.
+      const title = ROOT_STEPS.has(step) && text ? text : "run started";
+      thread_ts = await postMessage({ step: "start", text: `*${ticket}* — ${title}` });
     }
     // For root steps the anchor already exists; only reply for non-root steps.
     if (!ROOT_STEPS.has(step)) {
