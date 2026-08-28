@@ -211,15 +211,14 @@ reviews before merge. A ticket is never Done from an open PR. The gate is gates
 green + Actions check green + In Review; Sean asks for a local look himself if
 he wants one.
 
-**Autonomous (`SHELLY_AUTO_MERGE=1`): do not stop.** Run these as written — each
-Slack post is chained to its action with `&&` so it cannot be skipped (`$TS`
-= `node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs"`):
+**Autonomous (`SHELLY_AUTO_MERGE=1`): do not stop.**
 
-1. Wait + post `ci` on green, in one command:
-   `gh pr checks <PR> --watch && $TS post DEV-xxx ci "checks passed — merging"`
-2. Red instead? `$TS post DEV-xxx blocked "<failing check>"`, leave the PR In
-   Review, stop with the failure. Never merge or route around a red check.
-3. On green, go to §6 — post `merged` in the same breath as the merge (§6 step 1).
+1. Wait for Actions: `gh pr checks <PR> --watch`.
+2. Red? `node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs" post DEV-xxx blocked "<failing check>"`,
+   leave the PR In Review, stop with the failure. Never merge or route around red.
+3. Green → go to §6 and merge. The `ci` + `merged` Slack posts fire
+   **automatically** from the `slack-pipeline-merge` PostToolUse hook the instant
+   `gh pr merge` succeeds — do NOT post them by hand (you'd double-post).
 
 - **Scope added after a runbook already ran in prod** → write a NEW cumulative
   `PROD_` file for the delta (never edit the applied one) and keep handlers
@@ -258,10 +257,9 @@ or red.
    main` and `git worktree remove` cannot run from inside the worktree they are
    deleting. Use `keep` — a path-entered worktree can only be exited with `keep`;
    `/ship` then removes the sibling worktree (`git worktree remove
-   ../twd-worktrees/<name>`) and deletes the branch. **The moment the merge
-   lands, post it** (autonomous runs — do this before anything else in closeout,
-   it is the step most often skipped):
-   `node "$CLAUDE_PLUGIN_ROOT/bin/ticket-slack.mjs" post DEV-xxx merged "merged to main — <sha>, DEV-xxx Done"`.
+   ../twd-worktrees/<name>`) and deletes the branch. (Autonomous runs: the `ci`
+   + `merged` Slack posts fire automatically from the `slack-pipeline-merge`
+   PostToolUse hook when `gh pr merge` succeeds — nothing to post by hand.)
 2. `mcp__linear__save_issue({id, state: "Done"})` — this is the **only** place
    the ticket goes Done. Close any still-open sub-issues that the PR resolved.
 3. **Project status update.** If the ticket belongs to a Linear project,
